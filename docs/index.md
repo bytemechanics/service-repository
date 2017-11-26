@@ -10,7 +10,7 @@ Of course you are free to use it as base for another dependency injection mechan
 
 ## Quick start
 1. First of all include the Jar file in your compile and execution classpath.
-### Maven
+**Maven**
 ```Maven
 	<dependency>
 		<groupId>org.bytemechanics</groupId>
@@ -18,7 +18,7 @@ Of course you are free to use it as base for another dependency injection mechan
 		<version>X.X.X</version>
 	</dependency>
 ```
-### Graddle
+**Graddle**
 ```Gradle
 dependencies {
     compile 'org.bytemechanics:service-repository:X.X.X'
