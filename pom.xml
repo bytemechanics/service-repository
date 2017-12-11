@@ -7,7 +7,7 @@
         <version>1.0.0</version>
     </parent>
     <artifactId>service-repository</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 	<name>Service Repository</name>
 	<description>Repository to group all available services (stateless and statefull). The intention is have some point where all the internal project services are defined</description>
