@@ -15,8 +15,9 @@
  */
 package org.bytemechanics.service.repository.mocks;
 
+import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.bytemechanics.service.repository.ServiceFactory;
+import org.bytemechanics.service.repository.ServiceRepository;
 import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 
@@ -24,26 +25,36 @@ import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
  *
  * @author afarre
  */
-public enum DummieServiceFactory implements ServiceFactory {
+public enum DummieServiceRepositoryNoErrors implements ServiceRepository {
 
 	DUMMIE_SERVICE_0ARG(DummieService.class,DummieServiceImpl.class),
 	DUMMIE_SERVICE_1ARG(DummieService.class,DummieServiceImpl.class,"1arg-arg1"),
 	DUMMIE_SERVICE_3ARG(DummieService.class,DummieServiceImpl.class,"3arg-arg1",3,"3arg-arg2"),
-	DUMMIE_SERVICE_4ARG(DummieService.class,DummieServiceImpl.class,"4arg-arg1",4,"4arg-arg2",true),
+	DUMMIE_SERVICE_SUPPLIER_0ARG(DummieService.class,() -> new DummieServiceImpl()),
+	DUMMIE_SERVICE_SUPPLIER_1ARG(DummieService.class,() -> new DummieServiceImpl("1arg-arg1")),
+	DUMMIE_SERVICE_SUPPLIER_3ARG(DummieService.class,() -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	SINGLETON_DUMMIE_SERVICE_0ARG(DummieService.class,true,DummieServiceImpl.class),
 	SINGLETON_DUMMIE_SERVICE_1ARG(DummieService.class,true,DummieServiceImpl.class,"1arg-arg1"),
 	SINGLETON_DUMMIE_SERVICE_3ARG(DummieService.class,true,DummieServiceImpl.class,"3arg-arg1",3,"3arg-arg2"),
-	SINGLETON_DUMMIE_SERVICE_4ARG(DummieService.class,true,DummieServiceImpl.class,"4arg-arg1",4,"4arg-arg2",true),
+	SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG(DummieService.class,true,() -> new DummieServiceImpl()),
+	SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG(DummieService.class,true,() -> new DummieServiceImpl("1arg-arg1")),
+	SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG(DummieService.class,true,() -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	;
 
 	private final ServiceSupplier serviceSupplier;	
 		
 	
-	<T> DummieServiceFactory(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
+	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
 		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementation,_args);
 	}
-	<T> DummieServiceFactory(final Class<T> _adapter,final boolean _singleton,final Class<? extends T> _implementation,final Object... _args){
+	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final Supplier<? extends T> _implementationSupplier){
+		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementationSupplier);
+	}
+	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final boolean _singleton,final Class<? extends T> _implementation,final Object... _args){
 		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementation,_args);
+	}
+	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final boolean _singleton,final Supplier<? extends T> _implementationSupplier){
+		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementationSupplier);
 	}
 		
 	@Override
@@ -53,12 +64,12 @@ public enum DummieServiceFactory implements ServiceFactory {
 
 	
 	public static final void startup(){
-		ServiceFactory.startup(Stream.of(DummieServiceFactory.values()));
+		ServiceRepository.startup(Stream.of(DummieServiceRepositoryNoErrors.values()));
 	}
 	public static final void shutdown(){
-		ServiceFactory.shutdown(Stream.of(DummieServiceFactory.values()));
+		ServiceRepository.shutdown(Stream.of(DummieServiceRepositoryNoErrors.values()));
 	}
 	public static final void reset(){
-		ServiceFactory.reset(Stream.of(DummieServiceFactory.values()));
+		ServiceRepository.reset(Stream.of(DummieServiceRepositoryNoErrors.values()));
 	}
 }

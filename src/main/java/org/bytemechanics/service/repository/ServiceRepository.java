@@ -27,7 +27,7 @@ import org.bytemechanics.service.repository.exceptions.ServiceInitializationExce
  * Interface to implement for any service supplier, tipically an enum<br>
  * The minimum format should be:<br>
  * <code>
- * enum MyServiceFactory implements ServiceFactory{<br>
+ enum MyServiceRepository implements ServiceRepository{<br>
  * &nbsp;&nbsp;&nbsp;MYSERVICE(ServiceInterface.class,ServiceImplementation.class),<br>
  * &nbsp;&nbsp;&nbsp;;<br>
  * &nbsp;&nbsp;&nbsp;<br>
@@ -43,20 +43,20 @@ import org.bytemechanics.service.repository.exceptions.ServiceInitializationExce
  * &nbsp;&nbsp;&nbsp;}<br>
  * &nbsp;&nbsp;&nbsp;<br>	
  * &nbsp;&nbsp;&nbsp;public static final void startup(){<br>
- * &nbsp;&nbsp;&nbsp;	ServiceFactory.startup(Stream.of(MyServiceFactory.values()));<br>
+ * &nbsp;&nbsp;&nbsp;	ServiceRepository.startup(Stream.of(MyServiceFactory.values()));<br>
  * &nbsp;&nbsp;&nbsp;}<br>
  * &nbsp;&nbsp;&nbsp;public static final void shutdown(){<br>
- * &nbsp;&nbsp;&nbsp;	ServiceFactory.shutdown(Stream.of(MyServiceFactory.values()));<br>
+ * &nbsp;&nbsp;&nbsp;	ServiceRepository.shutdown(Stream.of(MyServiceFactory.values()));<br>
  * &nbsp;&nbsp;&nbsp;}<br>
  * &nbsp;&nbsp;&nbsp;public static final void reset(){<br>
- * &nbsp;&nbsp;&nbsp;	ServiceFactory.reset(Stream.of(MyServiceFactory.values()));<br>
+ * &nbsp;&nbsp;&nbsp;	ServiceRepository.reset(Stream.of(MyServiceFactory.values()));<br>
  * &nbsp;&nbsp;&nbsp;}<br>
  * }
  * </code>
  * @author afarre
  * @since 0.1.0
  */
-public interface ServiceFactory {
+public interface ServiceRepository {
 	
 	/**
 	 * Method to return the internal method supplier
@@ -130,7 +130,7 @@ public interface ServiceFactory {
 	 */
 	public default void init(){
 
-		final Logger logger=Logger.getLogger(ServiceFactory.class.getName());
+		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		try{
 			logger.finest(() -> MessageFormat.format("service::factory::init::{0}::begin",name()));
@@ -151,7 +151,7 @@ public interface ServiceFactory {
 	 */
 	public default void dispose(){
 		
-		final Logger logger=Logger.getLogger(ServiceFactory.class.getName());
+		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		try{
 			logger.finest(() -> MessageFormat.format("service::factory::dispose::{0}::begin",name()));
@@ -169,13 +169,13 @@ public interface ServiceFactory {
 	
 	/**
 	 * Utility method to invoke init() method to all serviceFactories of the stream
-	 * @param _services Stream of ServiceFactory instances to initialize
+	 * @param _services Stream of ServiceRepository instances to initialize
 	 * @throws ServiceInitializationException when service can not be initialized
 	 * @see #init() 
 	 */
-	public static void startup(final Stream<ServiceFactory> _services){
+	public static void startup(final Stream<ServiceRepository> _services){
 
-		final Logger logger=Logger.getLogger(ServiceFactory.class.getName());
+		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		logger.finest("service::factory::startup::begin");
 		_services.forEach(service -> service.init());
@@ -183,13 +183,13 @@ public interface ServiceFactory {
 	}
 	/**
 	 * Utility method to invoke dispose() method to all serviceFactories of the stream
-	 * @param _services Stream of ServiceFactory instances to dispose
+	 * @param _services Stream of ServiceRepository instances to dispose
 	 * @throws ServiceDisposeException when service can not be disposed
 	 * @see #dispose() 
 	 */
-	public static void shutdown(final Stream<ServiceFactory> _services){
+	public static void shutdown(final Stream<ServiceRepository> _services){
 
-		final Logger logger=Logger.getLogger(ServiceFactory.class.getName());
+		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		logger.finest("service::factory::close::begin");
 		_services.forEach(service -> service.dispose());
@@ -197,15 +197,15 @@ public interface ServiceFactory {
 	}
 	/**
 	 * Utility method to invoke dispose() and init() methods to all serviceFactories of the stream in order to reset it's instances
-	 * @param _services Stream of ServiceFactory instances to reset
+	 * @param _services Stream of ServiceRepository instances to reset
 	 * @throws ServiceInitializationException when service can not be initialized
 	 * @throws ServiceDisposeException when service can not be disposed
 	 * @see #init() 
 	 * @see #dispose() 
 	 */
-	public static void reset(final Stream<ServiceFactory> _services){
+	public static void reset(final Stream<ServiceRepository> _services){
 
-		final Logger logger=Logger.getLogger(ServiceFactory.class.getName());
+		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		logger.finest("service::factory::reset::begin");
 		_services.forEach(service -> {

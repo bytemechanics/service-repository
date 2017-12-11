@@ -104,7 +104,8 @@ public interface ServiceSupplier extends Supplier {
 				synchronized(this){
 					current=getInstance();
 					if(current==null){
-						setInstance(getSupplier().get());
+						current=getSupplier().get();
+						setInstance(current);
 					}			
 				}
 			}
@@ -128,7 +129,7 @@ public interface ServiceSupplier extends Supplier {
 		}
 	}
 	/**
-	 * Synchronized service dispose. if is singleton AND implements Closeable then dispose it by calling Closeable#close() and removes current instance by calling #setInstance(null), otherwise does nothing
+	 * Synchronized service dispose. if is singleton AND, THE IMPLEMENTATION, implements Closeable then dispose it will call Closeable#close() and removes current instance by calling #setInstance(null), otherwise does nothing
 	 * @throws ServiceDisposeException when service can not be disposed
 	 * @see Closeable#close() 
 	 */
@@ -141,7 +142,7 @@ public interface ServiceSupplier extends Supplier {
 				synchronized(this){
 					current=getInstance();
 					if(current!=null){
-						if(Closeable.class.isAssignableFrom(getAdapter())){
+						if(Closeable.class.isAssignableFrom(current.getClass())){
 							try {
 								((Closeable)current).close();
 							} catch (Throwable e) {
