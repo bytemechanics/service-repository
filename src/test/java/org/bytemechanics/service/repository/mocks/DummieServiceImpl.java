@@ -68,7 +68,6 @@ public class DummieServiceImpl implements DummieService,Closeable {
 		return arg4;
 	}
 	
-	
 	@Override
 	public void close() throws IOException {
 		this.closed=true;

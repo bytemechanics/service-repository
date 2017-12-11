@@ -43,7 +43,17 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * @param _args	Service arguments
 	 */
 	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
-		this(_name,_adapter,false,_implementation);
+		this(_name,_adapter,false,ServiceSupplier.generateSupplier(_name,_implementation,_args));
+	}
+	/**
+	 * Constructor of service supplier
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _iimplementation must implement
+	 * @param _supplier adapter class implementation supplier
+	 */
+	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Supplier<? extends T> _supplier){
+		this(_name,_adapter,false,_supplier);
 	}
 	/**
 	 * Constructor of service supplier
@@ -55,7 +65,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * @param _args	Service arguments
 	 */
 	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Class<? extends T> _implementation,final Object... _args){
-		this(_name,_adapter,false,ServiceSupplier.generateSupplier(_name,_implementation,_args));
+		this(_name,_adapter,_isSingleton,ServiceSupplier.generateSupplier(_name,_implementation,_args));
 	}
 	/**
 	 * Constructor of service supplier
@@ -123,7 +133,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	public void setInstance(final Object _instance) {
 		
 		if((_instance!=null)&&(!getAdapter().isAssignableFrom(_instance.getClass()))){
-			throw new RuntimeException(MessageFormat.format("Unable to set instance {0} that doesn't implement the required adapter {1}",_instance,getAdapter()));
+			throw new RuntimeException(MessageFormat.format("Unable to set instance {0} that doesn''t implement the required adapter {1}",_instance,getAdapter()));
 		}
 		this.instance = _instance;
 	}
