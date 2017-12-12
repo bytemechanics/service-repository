@@ -3,11 +3,9 @@ Service Repository it's a library to simplify the task to define and unify the d
 Allows:
 * Create stateful services (singletons)
 * Create stateless services acting as service factory 
-
 ## Motivation
 With the dependency injection development has become easier and faster, but with large projects increase the dificulty to start working with a preexistent project and it's difficult to understand by novice developers. For this reason we propose to go back to the old style factories, but with more fashion approach
 Of course you are free to use it as base for another dependency injection mechanism, but this is not the final intention
-
 ## Quick start
 1. First of all include the Jar file in your compile and execution classpath.
 **Maven**
@@ -31,20 +29,10 @@ import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.ServiceRepository;
 public enum MyServiceRepository implements ServiceRepository{
-	MY_SERVICE_0ARG(MyService.class,MyServiceImpl.class),
-	MY_SERVICE_1ARG(MyService.class,MyServiceImpl.class,"1arg-arg1"),
-	MY_SERVICE_3ARG(MyService.class,MyServiceImpl.class,"3arg-arg1",3,"3arg-arg2"),
-	MY_SERVICE_4ARG(MyService.class,MyServiceImpl.class,"4arg-arg1",4,"4arg-arg2",true),
+    MY_SERVICE_0ARG(MyService.class,MyServiceImpl.class),
 	MY_SERVICE_SUPPLIER_0ARG(MyService.class,() -> new MyServiceImpl()),
-	MY_SERVICE_SUPPLIER_1ARG(MyService.class,() -> new MyServiceImpl("1arg-arg1")),
-	MY_SERVICE_SUPPLIER_3ARG(MyService.class,() -> new MyServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	MY_SINGLETON_SERVICE_0ARG(MyService.class,true,MyServiceImpl.class),
-	MY_SINGLETON_SERVICE_1ARG(MyService.class,true,MyServiceImpl.class,"1arg-arg1"),
-	MY_SINGLETON_SERVICE_3ARG(MyService.class,true,MyServiceImpl.class,"3arg-arg1",3,"3arg-arg2"),
-	MY_SINGLETON_SERVICE_4ARG(MyService.class,true,MyServiceImpl.class,"4arg-arg1",4,"4arg-arg2",true),
 	MY_SINGLETON_SERVICE_SUPPLIER_0ARG(MyService.class,true,() -> new MyServiceImpl()),
-	MY_SINGLETON_SERVICE_SUPPLIER_1ARG(MyService.class,true,() -> new MyServiceImpl("1arg-arg1")),
-	MY_SINGLETON_SERVICE_SUPPLIER_3ARG(MyService.class,true,() -> new MyServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	;	
 	private final ServiceSupplier serviceSupplier;	
 	<T> MyServiceRepository(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
