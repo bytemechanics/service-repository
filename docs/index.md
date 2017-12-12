@@ -75,19 +75,19 @@ public enum MyServiceRepository implements ServiceRepository{
 }
 ```
 1. get service instance
-**directly (with exceptions)**
+**Directly (with exceptions)**
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get();
 ```
-**directly (with exceptions) casted**
+**Directly (with exceptions) casted**
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get(MyService.class);
 ```
-**optional (without exceptions)**
+**Optional (without exceptions)**
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.tryGet();
 ```
-**optional (without exceptions) casted**
+**Optional (without exceptions) casted**
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.tryGet(MyService.class);
 ```
