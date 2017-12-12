@@ -24,7 +24,7 @@ dependencies {
     compile 'org.bytemechanics:service-repository:X.X.X'
 }
 ```
-2. Create your service repository
+1. Create your service repository
 ```Java
 package mypackage;
 import org.bytemechanics.service.repository.ServiceSupplier;
@@ -74,7 +74,7 @@ public enum MyServiceRepository implements ServiceRepository{
 	}
 }
 ```
-3. get service instance
+1. get service instance
 **directly (with exceptions)**
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get();
