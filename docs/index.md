@@ -3,12 +3,14 @@ Service Repository it's a library to simplify the task to define and unify the d
 Allows:
 * Create stateful services (singletons)
 * Create stateless services acting as service factory 
+
 ## Motivation
 With the dependency injection development has become easier and faster, but with large projects increase the dificulty to start working with a preexistent project and it's difficult to understand by novice developers. For this reason we propose to go back to the old style factories, but with more fashion approach
 Of course you are free to use it as base for another dependency injection mechanism, but this is not the final intention
+
 ## Quick start
 1. First of all include the Jar file in your compile and execution classpath.
-**Maven**
+### Maven
 ```Maven
 	<dependency>
 		<groupId>org.bytemechanics</groupId>
@@ -16,7 +18,7 @@ Of course you are free to use it as base for another dependency injection mechan
 		<version>X.X.X</version>
 	</dependency>
 ```
-**Graddle**
+### Graddle
 ```Gradle
 dependencies {
     compile 'org.bytemechanics:service-repository:X.X.X'
@@ -63,19 +65,19 @@ public enum MyServiceRepository implements ServiceRepository{
 }
 ```
 1. get service instance
-**Directly (with exceptions)**
+### Directly (with exceptions)
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get();
 ```
-**Directly (with exceptions) casted**
+### Directly (with exceptions) casted
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get(MyService.class);
 ```
-**Optional (without exceptions)**
+### Optional (without exceptions)
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.tryGet();
 ```
-**Optional (without exceptions) casted**
+### Optional (without exceptions) casted
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.tryGet(MyService.class);
 ```
