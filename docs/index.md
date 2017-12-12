@@ -29,7 +29,7 @@ import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.ServiceRepository;
 public enum MyServiceRepository implements ServiceRepository{
-    MY_SERVICE_0ARG(MyService.class,MyServiceImpl.class),
+	MY_SERVICE_0ARG(MyService.class,MyServiceImpl.class),
 	MY_SERVICE_SUPPLIER_0ARG(MyService.class,() -> new MyServiceImpl()),
 	MY_SINGLETON_SERVICE_0ARG(MyService.class,true,MyServiceImpl.class),
 	MY_SINGLETON_SERVICE_SUPPLIER_0ARG(MyService.class,true,() -> new MyServiceImpl()),
