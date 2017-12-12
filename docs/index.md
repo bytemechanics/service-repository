@@ -27,11 +27,9 @@ dependencies {
 2. Create your service repository
 ```Java
 package mypackage;
-
 import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.ServiceRepository;
-
 public enum MyServiceRepository implements ServiceRepository{
 	MY_SERVICE_0ARG(MyService.class,MyServiceImpl.class),
 	MY_SERVICE_1ARG(MyService.class,MyServiceImpl.class,"1arg-arg1"),
@@ -49,8 +47,6 @@ public enum MyServiceRepository implements ServiceRepository{
 	MY_SINGLETON_SERVICE_SUPPLIER_3ARG(MyService.class,true,() -> new MyServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	;	
 	private final ServiceSupplier serviceSupplier;	
-		
-	
 	<T> MyServiceRepository(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
 		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementation,_args);
 	}
@@ -63,13 +59,10 @@ public enum MyServiceRepository implements ServiceRepository{
 	<T> MyServiceRepository(final Class<T> _adapter,final boolean _singleton,final Supplier<? extends T> _implementationSupplier){
 		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementationSupplier);
 	}
-		
 	@Override
 	public ServiceSupplier getServiceSupplier() {
 		return this.serviceSupplier;
 	}
-
-	
 	public static final void startup(){
 		ServiceRepository.startup(Stream.of(MyServiceRepository.values()));
 	}
