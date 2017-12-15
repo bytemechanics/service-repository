@@ -10,7 +10,7 @@ Of course you are free to use it as base for another dependency injection mechan
 
 ## Quick start
 1. First of all include the Jar file in your compile and execution classpath.
-**Maven**
+### Maven
 ```Maven
 	<dependency>
 		<groupId>org.bytemechanics</groupId>
@@ -18,39 +18,25 @@ Of course you are free to use it as base for another dependency injection mechan
 		<version>X.X.X</version>
 	</dependency>
 ```
-**Graddle**
+### Graddle
 ```Gradle
 dependencies {
     compile 'org.bytemechanics:service-repository:X.X.X'
 }
 ```
-2. Create your service repository
+1. Create your service repository
 ```Java
 package mypackage;
-
 import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.ServiceRepository;
-
 public enum MyServiceRepository implements ServiceRepository{
 	MY_SERVICE_0ARG(MyService.class,MyServiceImpl.class),
-	MY_SERVICE_1ARG(MyService.class,MyServiceImpl.class,"1arg-arg1"),
-	MY_SERVICE_3ARG(MyService.class,MyServiceImpl.class,"3arg-arg1",3,"3arg-arg2"),
-	MY_SERVICE_4ARG(MyService.class,MyServiceImpl.class,"4arg-arg1",4,"4arg-arg2",true),
 	MY_SERVICE_SUPPLIER_0ARG(MyService.class,() -> new MyServiceImpl()),
-	MY_SERVICE_SUPPLIER_1ARG(MyService.class,() -> new MyServiceImpl("1arg-arg1")),
-	MY_SERVICE_SUPPLIER_3ARG(MyService.class,() -> new MyServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	MY_SINGLETON_SERVICE_0ARG(MyService.class,true,MyServiceImpl.class),
-	MY_SINGLETON_SERVICE_1ARG(MyService.class,true,MyServiceImpl.class,"1arg-arg1"),
-	MY_SINGLETON_SERVICE_3ARG(MyService.class,true,MyServiceImpl.class,"3arg-arg1",3,"3arg-arg2"),
-	MY_SINGLETON_SERVICE_4ARG(MyService.class,true,MyServiceImpl.class,"4arg-arg1",4,"4arg-arg2",true),
 	MY_SINGLETON_SERVICE_SUPPLIER_0ARG(MyService.class,true,() -> new MyServiceImpl()),
-	MY_SINGLETON_SERVICE_SUPPLIER_1ARG(MyService.class,true,() -> new MyServiceImpl("1arg-arg1")),
-	MY_SINGLETON_SERVICE_SUPPLIER_3ARG(MyService.class,true,() -> new MyServiceImpl("3arg-arg1",3,"3arg-arg2")),
 	;	
 	private final ServiceSupplier serviceSupplier;	
-		
-	
 	<T> MyServiceRepository(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
 		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementation,_args);
 	}
@@ -63,13 +49,10 @@ public enum MyServiceRepository implements ServiceRepository{
 	<T> MyServiceRepository(final Class<T> _adapter,final boolean _singleton,final Supplier<? extends T> _implementationSupplier){
 		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementationSupplier);
 	}
-		
 	@Override
 	public ServiceSupplier getServiceSupplier() {
 		return this.serviceSupplier;
 	}
-
-	
 	public static final void startup(){
 		ServiceRepository.startup(Stream.of(MyServiceRepository.values()));
 	}
@@ -81,20 +64,20 @@ public enum MyServiceRepository implements ServiceRepository{
 	}
 }
 ```
-3. get service instance
-**directly (with exceptions)**
+1. get service instance
+### Directly (with exceptions)
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get();
 ```
-**directly (with exceptions) casted**
+### Directly (with exceptions) casted
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.get(MyService.class);
 ```
-**optional (without exceptions)**
+### Optional (without exceptions)
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.tryGet();
 ```
-**optional (without exceptions) casted**
+### Optional (without exceptions) casted
 ```Java
 MyServiceRepository.MY_SINGLETON_SERVICE_0ARG.tryGet(MyService.class);
 ```
