@@ -175,7 +175,7 @@ public interface ServiceSupplier extends Supplier {
 																	.format("Unable to instantiate service with class {0} using constructor({1})", 
 																		_implementation,
 																		Optional.ofNullable(_attributes)
-																				.map(attributesArray -> Arrays.asList(attributesArray))
+																				.map(Arrays::asList)
 																				.orElse(Collections.emptyList()))));
 	}
 }

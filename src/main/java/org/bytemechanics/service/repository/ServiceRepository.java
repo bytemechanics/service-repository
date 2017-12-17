@@ -178,7 +178,7 @@ public interface ServiceRepository {
 		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		logger.finest("service::factory::startup::begin");
-		_services.forEach(service -> service.init());
+		_services.forEach(ServiceRepository::init);
 		logger.finer("service::factory::startup::end");
 	}
 	/**
@@ -192,7 +192,7 @@ public interface ServiceRepository {
 		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		logger.finest("service::factory::close::begin");
-		_services.forEach(service -> service.dispose());
+		_services.forEach(ServiceRepository::dispose);
 		logger.finest("service::factory::close::end");
 	}
 	/**

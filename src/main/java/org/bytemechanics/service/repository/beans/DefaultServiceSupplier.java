@@ -15,9 +15,9 @@
  */
 package org.bytemechanics.service.repository.beans;
 
-import java.text.MessageFormat;
 import java.util.function.Supplier;
 import org.bytemechanics.service.repository.ServiceSupplier;
+import org.bytemechanics.service.repository.exceptions.UnableToSetInstanceException;
 
 /**
  * Default Service supplier implementation
@@ -133,7 +133,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	public void setInstance(final Object _instance) {
 		
 		if((_instance!=null)&&(!getAdapter().isAssignableFrom(_instance.getClass()))){
-			throw new RuntimeException(MessageFormat.format("Unable to set instance {0} that doesn''t implement the required adapter {1}",_instance,getAdapter()));
+			throw new UnableToSetInstanceException(_instance,getAdapter());
 		}
 		this.instance = _instance;
 	}

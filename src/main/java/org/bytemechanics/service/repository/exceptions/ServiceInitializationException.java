@@ -80,10 +80,7 @@ public class ServiceInitializationException extends RuntimeException{
 		if (!Objects.equals(this.serviceName, other.serviceName)) {
 			return false;
 		}
-		if (!Objects.equals(getMessage(), other.getMessage())) {
-			return false;
-		}
-		return true;
+		return Objects.equals(getMessage(), other.getMessage());
 	}
 	
 }

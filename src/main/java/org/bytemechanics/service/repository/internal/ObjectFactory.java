@@ -122,7 +122,7 @@ public class ObjectFactory<T> {
 							} catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 								Logger.getLogger(ObjectFactory.class.getName())
 									  .log(Level.SEVERE, e, () -> Optional.ofNullable(this.attributes)
-																			.map(attributesArray -> Arrays.asList(attributesArray))
+																			.map(Arrays::asList)
 																			.map(attributesList -> MessageFormat.format("Unable to instantiate object using constructor {0} with attributes {1}",constructor,attributesList))
 																			.orElseGet(() -> MessageFormat.format("Unable to instantiate object using constructor {0} without arguments",constructor)));
 							}
