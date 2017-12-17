@@ -53,6 +53,18 @@ class ServiceRepositorySpec extends Specification{
 			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG	| DummieService.class
 			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG	| DummieService.class
 	}
+	
+	@Unroll
+	def "Service repository must return an exception when can not instance #service instance"(){
+		when:
+			def instance=service.get()
+			
+		then:
+			thrown(ServiceInitializationException)
+			
+		where:
+			service	<< [DummieServiceRepository.DUMMIE_SERVICE_4ARG,DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_4ARG]
+	}
 
 	@Unroll
 	def "Service repository must return a valid Optional of #service.adapter instance when call tryget to the corresponding #service.name of service repository"(){

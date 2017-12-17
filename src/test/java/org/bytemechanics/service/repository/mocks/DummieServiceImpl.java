@@ -40,6 +40,10 @@ public class DummieServiceImpl implements DummieService,Closeable {
 	public DummieServiceImpl(String _arg1,int _arg2,String _arg3){
 		this(_arg1,_arg2,_arg3,false);
 	}
+	public DummieServiceImpl(String _arg1,int _arg2,boolean _arg4,String _arg3){
+		this(_arg1,_arg2,_arg3,_arg4);
+		throw new RuntimeException("force failure");
+	}
 	private DummieServiceImpl(String _arg1,int _arg2,String _arg3,boolean _arg4){
 		this.arg1=_arg1;
 		this.arg2=_arg2;

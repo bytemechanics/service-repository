@@ -40,14 +40,4 @@ public class UnableToSetInstanceException extends RuntimeException {
 	public UnableToSetInstanceException(final Object _instance,final Class _adapter) {
 		super(MessageFormat.format(MESSAGE,_instance,_adapter));
 	}
-	/**
-	 * Unable to set instance exception constructor
-	 * @param _cause cause of the error
-	 * @param _instance instance that is trying to assign
-	 * @param _adapter adapter that instance should extend/implement
-	 * @since 1.0.0
-	 */
-	public UnableToSetInstanceException(final Throwable _cause,final Object _instance,final Class _adapter) {
-		super(MessageFormat.format(MESSAGE,_instance,_adapter),_cause);
-	}
 }

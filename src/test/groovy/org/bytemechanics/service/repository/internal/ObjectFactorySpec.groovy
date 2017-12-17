@@ -18,6 +18,7 @@ package org.bytemechanics.service.repository.internal
 
 import org.bytemechanics.service.repository.internal.ObjectFactory;
 import org.bytemechanics.service.repository.mocks.DummieServiceImpl;
+import java.util.logging.*
 import spock.lang.Specification;
 import spock.lang.Unroll
 
@@ -26,6 +27,14 @@ import spock.lang.Unroll
  * @author afarre
  */
 class ObjectFactorySpec extends Specification{
+	
+	
+	def setup(){
+		Handler ch = new ConsoleHandler();
+		ch.setLevel(Level.ALL)
+		Logger.getLogger("org.bytemechanics.service.repository.internal.ObjectFactory").addHandler(ch)
+		Logger.getLogger("org.bytemechanics.service.repository.internal.ObjectFactory").setLevel(Level.ALL)		
+	}
 	
 	@Unroll
 	def "Calling of(#objectiveClass) should return an instance of ObjectFactory with instantiation objective #objectiveClass"(){
@@ -108,6 +117,23 @@ class ObjectFactorySpec extends Specification{
 			DummieServiceImpl.class	| []
 			DummieServiceImpl.class	| ["1arg-arg1"]
 			DummieServiceImpl.class	| ["1arg-arg1",3,"3arg-arg2"]
+	}
+
+	@Unroll
+	def "when object factory builds a supplier of #supplierClass with #arguments should return a empty optional and write a log "(){
+		when:
+			def result=ObjectFactory.of(supplierClass)
+										.with((Object[])arguments)
+										.supplier()
+										.get()
+
+		then:
+			result!=null
+			!result.isPresent()
+			
+		where:
+			supplierClass			| arguments
+			DummieServiceImpl.class	| ["1arg-arg1",3,false,"3arg-arg2"]
 	}
 }
 
