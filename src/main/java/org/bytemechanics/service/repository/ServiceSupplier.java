@@ -31,6 +31,7 @@ import org.bytemechanics.service.repository.internal.ObjectFactory;
  * Service supplier interface to store all service metadata information and the current instance in case of singletons
  * @author afarre
  * @since 0.1.0
+ * @version 1.1.0
  */
 public interface ServiceSupplier extends Supplier {
 
@@ -55,6 +56,12 @@ public interface ServiceSupplier extends Supplier {
 	 * @see Supplier
 	 */
 	public Supplier getSupplier();
+	/**
+	 * Method to store a new supplier service instance
+	 * @param _supplier supplier to provides service instance 
+	 * @since v1.2.0
+	 */
+	public void setSupplier(final Supplier _supplier);	
 
 	/**
 	 * Method to retrieve the current singleton service instance

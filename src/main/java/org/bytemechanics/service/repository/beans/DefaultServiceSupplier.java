@@ -23,12 +23,13 @@ import org.bytemechanics.service.repository.exceptions.UnableToSetInstanceExcept
  * Default Service supplier implementation
  * @author afarre
  * @since 0.1.0
+ * @version 1.1.0
  * @see ServiceSupplier
  */
 public class DefaultServiceSupplier implements ServiceSupplier{
 
 	private final String name;
-	private final Supplier supplier;
+	private Supplier supplier;
 	private final Class adapter;
 	private final boolean singleton;
 	private volatile Object instance;
@@ -115,6 +116,14 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	@Override
 	public Supplier getSupplier() {
 		return supplier;
+	}
+	/**
+	 * @see ServiceSupplier#setSupplier(java.util.function.Supplier) 
+	 * @since 1.2.0
+	 */	
+	@Override
+	public void setSupplier(final Supplier _supplier) {
+		this.supplier=_supplier;
 	}
 
 	/**

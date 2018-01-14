@@ -81,5 +81,32 @@ class DefaultServiceSupplierSpec extends Specification{
 			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
 			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
 	}
+	
+
+	@Unroll
+	def "Replace supplier with another supplier should keep the new one"(){
+		when:
+			def serviceSupplier=new DefaultServiceSupplier(name,adapter,singleton,implementation,(Object[])args)
+			def dummieServiceImpl=new DummieServiceImpl();
+			serviceSupplier.setSupplier({ -> dummieServiceImpl})
+
+		then:
+			serviceSupplier.getSupplier().get()==dummieServiceImpl;
+			
+		where:
+			name										| adapter				| singleton	| implementation			| args
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"SINGLETON_DUMMIE_SERVICE_0ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| []
+			"SINGLETON_DUMMIE_SERVICE_1ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"SINGLETON_DUMMIE_SERVICE_3ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| []
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+	}
 }
 
