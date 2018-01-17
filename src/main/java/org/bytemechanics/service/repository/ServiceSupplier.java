@@ -75,11 +75,11 @@ public interface ServiceSupplier extends Supplier {
 	 * @since 1.2.0
 	 */
 	public default Supplier provideSupplier(final Object... _args){
-		return Optional.ofNullable(_args)
+		return (Supplier)Optional.ofNullable(_args)
 							.filter(arguments -> arguments.length>0)
 							.filter(arguments -> getImplementation()!=null)
 							.map(arguments -> generateSupplier(getName(),getImplementation(), arguments))
-							.orElseGet(() -> getSupplier());
+							.orElse(getSupplier());
 	}
 
 	/**
