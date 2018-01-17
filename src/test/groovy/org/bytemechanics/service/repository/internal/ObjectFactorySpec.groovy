@@ -18,8 +18,11 @@ package org.bytemechanics.service.repository.internal
 
 import org.bytemechanics.service.repository.internal.ObjectFactory;
 import org.bytemechanics.service.repository.mocks.DummieServiceImpl;
+import java.util.logging.*
 import spock.lang.Specification;
 import spock.lang.Unroll
+import java.util.logging.*
+
 
 /**
  *
@@ -27,8 +30,33 @@ import spock.lang.Unroll
  */
 class ObjectFactorySpec extends Specification{
 	
+	def setupSpec(){
+		println(">>>>> ObjectFactorySpec >>>> setupSpec")
+		final InputStream inputStream = ObjectFactorySpec.class.getResourceAsStream("/logging.properties");
+		try{
+			LogManager.getLogManager().readConfiguration(inputStream);
+		}catch (final IOException e){
+			Logger.getAnonymousLogger().severe("Could not load default logging.properties file");
+			Logger.getAnonymousLogger().severe(e.getMessage());
+		}finally{
+			if(inputStream!=null)
+				inputStream.close();
+		}
+	}
+	
+	
+	def setup(){
+		println(">>>>> ObjectFactorySpec >>>> setup")
+		Handler ch = new ConsoleHandler();
+		ch.setLevel(Level.ALL)
+		Logger.getLogger("org.bytemechanics.service.repository.internal.ObjectFactory").addHandler(ch)
+		Logger.getLogger("org.bytemechanics.service.repository.internal.ObjectFactory").setLevel(Level.ALL)		
+	}
+	
 	@Unroll
 	def "Calling of(#objectiveClass) should return an instance of ObjectFactory with instantiation objective #objectiveClass"(){
+		println(">>>>> ObjectFactorySpec >>>> Calling of($objectiveClass) should return an instance of ObjectFactory with instantiation objective $objectiveClass")
+
 		when:
 			def objectFactory=ObjectFactory.of(objectiveClass)
 
@@ -43,7 +71,9 @@ class ObjectFactorySpec extends Specification{
 	}
 	
 	@Unroll
-	def "Calling with(#arguments) over an existent ObjectFactory of #objectiveClass should return an instance of ObjectFactory with instantiation objective #objectiveClass with #arguments constructor "(){
+	def "Calling with(#arguments) over an existent ObjectFactory of #objectiveClass should return an instance of ObjectFactory with instantiation objective #objectiveClass with #arguments constructor"(){
+		println(">>>>> ObjectFactorySpec >>>> Calling with($arguments) over an existent ObjectFactory of $objectiveClass should return an instance of ObjectFactory with instantiation objective $objectiveClass with $arguments constructor")
+
 		when:
 			def objectFactory=ObjectFactory.of(objectiveClass)
 										.with((Object[])arguments)
@@ -65,6 +95,8 @@ class ObjectFactorySpec extends Specification{
 	
 	@Unroll
 	def "Search constructor over ObjectFactory instance of #objectiveClass with #arguments should return an optional of #constructor"(){
+		println(">>>>> ObjectFactorySpec >>>> Search constructor over ObjectFactory instance of $objectiveClass with $arguments should return an optional of $constructor")
+
 		when:
 			def optionalConstructor=ObjectFactory.of(objectiveClass)
 										.with((Object[])arguments)
@@ -85,29 +117,46 @@ class ObjectFactorySpec extends Specification{
 
 	@Unroll
 	def "when object factory builds a supplier of #supplierClass with #arguments should return a supplier of #supplierClass"(){
+		println(">>>>> ObjectFactorySpec >>>> when object factory builds a supplier of $supplierClass with $arguments should return a supplier of $supplierClass")
+
 		when:
 			def supplier=ObjectFactory.of(supplierClass)
 										.with((Object[])arguments)
 										.supplier()
+			def instance=(supplier!=null)? supplier.get().get() : null
+			def args=(instance!=null)? [instance.getArg1(),instance.getArg2(),instance.getArg3()] : null
 
 		then:
 			supplier!=null
-			supplierClass.equals(supplier.get().get().getClass())
-			if(arguments.size()>0){
-				arguments[0]==supplier.get().get().getArg1()
-				if(arguments.size()>1){
-					arguments[1]==supplier.get().get().getArg2()
-					if(arguments.size()>2){
-						arguments[2]==supplier.get().get().getArg3()
-					}
-				}
-			}
+			instance!=null
+			supplierClass.equals(instance.getClass())
+			expected==args
 			
 		where:
 			supplierClass			| arguments
 			DummieServiceImpl.class	| []
 			DummieServiceImpl.class	| ["1arg-arg1"]
 			DummieServiceImpl.class	| ["1arg-arg1",3,"3arg-arg2"]
+			expected=[(arguments.size()>0)? arguments[0] : "",(arguments.size()>1)? arguments[1] : 0,(arguments.size()>2)? arguments[2] : ""]			
+		}
+
+	@Unroll
+	def "when object factory builds a supplier of #supplierClass with #arguments should return a empty optional and write a log"(){
+		println(">>>>> ObjectFactorySpec >>>> when object factory builds a supplier of $supplierClass with $arguments should return a empty optional and write a log")
+
+		when:
+			def result=ObjectFactory.of(supplierClass)
+										.with((Object[])arguments)
+										.supplier()
+										.get()
+
+		then:
+			result!=null
+			!result.isPresent()
+			
+		where:
+			supplierClass			| arguments
+			DummieServiceImpl.class	| ["1arg-arg1",3,false,"3arg-arg2"]
 	}
 }
 

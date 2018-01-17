@@ -15,21 +15,23 @@
  */
 package org.bytemechanics.service.repository.beans;
 
-import java.text.MessageFormat;
 import java.util.function.Supplier;
 import org.bytemechanics.service.repository.ServiceSupplier;
+import org.bytemechanics.service.repository.exceptions.UnableToSetInstanceException;
 
 /**
  * Default Service supplier implementation
  * @author afarre
  * @since 0.1.0
+ * @version 1.1.0
  * @see ServiceSupplier
  */
 public class DefaultServiceSupplier implements ServiceSupplier{
 
 	private final String name;
-	private final Supplier supplier;
+	private Supplier supplier;
 	private final Class adapter;
+	private final Class implementation;
 	private final boolean singleton;
 	private volatile Object instance;
 	
@@ -43,7 +45,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * @param _args	Service arguments
 	 */
 	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
-		this(_name,_adapter,false,ServiceSupplier.generateSupplier(_name,_implementation,_args));
+		this(_name,_adapter,_implementation,false,ServiceSupplier.generateSupplier(_name,_implementation,_args));
 	}
 	/**
 	 * Constructor of service supplier
@@ -53,7 +55,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * @param _supplier adapter class implementation supplier
 	 */
 	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Supplier<? extends T> _supplier){
-		this(_name,_adapter,false,_supplier);
+		this(_name,_adapter,null,false,_supplier);
 	}
 	/**
 	 * Constructor of service supplier
@@ -65,7 +67,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * @param _args	Service arguments
 	 */
 	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Class<? extends T> _implementation,final Object... _args){
-		this(_name,_adapter,_isSingleton,ServiceSupplier.generateSupplier(_name,_implementation,_args));
+		this(_name,_adapter,_implementation,_isSingleton,ServiceSupplier.generateSupplier(_name,_implementation,_args));
 	}
 	/**
 	 * Constructor of service supplier
@@ -76,11 +78,25 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * @param _supplier adapter class implementation supplier
 	 */
 	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Supplier<? extends T> _supplier){
+		this(_name,_adapter,null,_isSingleton,_supplier);
+	}
+	/**
+	 * Constructor of service supplier
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _implementation must implement
+	 * @param _implementation implementation of the _adapter (optional)
+	 * @param _isSingleton  singleton flag
+	 * @param _supplier adapter class implementation supplier
+	 * @since 1.2.0
+	 */
+	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final boolean _isSingleton,final Supplier<? extends T> _supplier){
 		this.name=_name;
 		this.adapter=_adapter;
 		this.singleton=_isSingleton;
 		this.supplier=_supplier;
 		this.instance=null;
+		this.implementation=_implementation;
 	}
 
 
@@ -101,6 +117,14 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 		return adapter;
 	}
 	/**
+	 * @return implementation class
+	 * @see ServiceSupplier#getImplementation() 
+	 */	
+	@Override
+	public Class getImplementation() {
+		return implementation;
+	}
+	/**
 	 * @return singleton indicator flag
 	 * @see ServiceSupplier#isSingleton()
 	 */	
@@ -115,6 +139,14 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	@Override
 	public Supplier getSupplier() {
 		return supplier;
+	}
+	/**
+	 * @see ServiceSupplier#setSupplier(java.util.function.Supplier) 
+	 * @since 1.2.0
+	 */	
+	@Override
+	public void setSupplier(final Supplier _supplier) {
+		this.supplier=_supplier;
 	}
 
 	/**
@@ -133,7 +165,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	public void setInstance(final Object _instance) {
 		
 		if((_instance!=null)&&(!getAdapter().isAssignableFrom(_instance.getClass()))){
-			throw new RuntimeException(MessageFormat.format("Unable to set instance {0} that doesn''t implement the required adapter {1}",_instance,getAdapter()));
+			throw new UnableToSetInstanceException(_instance,getAdapter());
 		}
 		this.instance = _instance;
 	}

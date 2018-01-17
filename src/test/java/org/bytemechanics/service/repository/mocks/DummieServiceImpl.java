@@ -17,6 +17,7 @@ package org.bytemechanics.service.repository.mocks;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  *
@@ -24,23 +25,34 @@ import java.io.IOException;
  */
 public class DummieServiceImpl implements DummieService,Closeable {
 
+
 	private boolean closed=false;
 	private String arg1;
 	private int arg2;
 	private String arg3;
 	private boolean arg4;
+	private boolean failOnClose=false;
 	
 	
 	public DummieServiceImpl(){
-		this("no0arg",0,"no0arg",false);
+		this("",0,"",false);
+		System.out.println("[DummieServiceImpl]>Constructor()");
 	}
 	public DummieServiceImpl(String _arg1){
-		this(_arg1,0,"no1arg",false);
+		this(_arg1,0,"",false);
+		System.out.println(MessageFormat.format("[DummieServiceImpl]>Constructor({0})",_arg1));
 	}
 	public DummieServiceImpl(String _arg1,int _arg2,String _arg3){
 		this(_arg1,_arg2,_arg3,false);
+		System.out.println(MessageFormat.format("[DummieServiceImpl]>Constructor({0},{1},{2})",_arg1,_arg2,_arg3));
+	}
+	public DummieServiceImpl(String _arg1,int _arg2,boolean _arg4,String _arg3){
+		this(_arg1,_arg2,_arg3,_arg4);
+		System.out.println(MessageFormat.format("[DummieServiceImpl]>Constructor({0},{1},{2},{3})",_arg1,_arg2,_arg3,_arg4));
+		throw new RuntimeException("force failure");
 	}
 	private DummieServiceImpl(String _arg1,int _arg2,String _arg3,boolean _arg4){
+		System.out.println(MessageFormat.format("[DummieServiceImpl]>Constructor({0},{1},{2},{3})",_arg1,_arg2,_arg3,_arg4));
 		this.arg1=_arg1;
 		this.arg2=_arg2;
 		this.arg3=_arg3;
@@ -68,8 +80,15 @@ public class DummieServiceImpl implements DummieService,Closeable {
 		return arg4;
 	}
 	
+	public void setFailOnClose(boolean _fail){
+		this.failOnClose=_fail;
+	}
+	
 	@Override
 	public void close() throws IOException {
+		System.out.println("[DummieServiceImpl]>close()");
+		if(this.failOnClose==true)
+			throw new RuntimeException("Can not close it");
 		this.closed=true;
 	}
 }
