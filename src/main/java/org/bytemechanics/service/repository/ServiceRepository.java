@@ -55,6 +55,7 @@ import org.bytemechanics.service.repository.exceptions.ServiceInitializationExce
  * </code>
  * @author afarre
  * @since 0.1.0
+ * @version 1.1.0
  */
 public interface ServiceRepository {
 	
@@ -88,39 +89,47 @@ public interface ServiceRepository {
 	}
 	/**
 	 * Method to obtain the service instance, note that if the service is a singleton always returns the same instance. This instance is obtained by calling ServiceSupplie#get()
+	 * @param _args arguments to use with constructor if instantiation is necessary
 	 * @return the service instance as Object or null if the instance can not be obtained
-	 * @see ServiceSupplier#get() 
+	 * @see ServiceSupplier#get(java.lang.Object...)  
+	 * @since 1.2.0
 	 */
-	public default Object get(){
-		return getServiceSupplier().get();
+	public default Object get(final Object... _args){
+		return getServiceSupplier().get(_args);
 	}
 	/**
 	 * Method to obtain the service instance casted to the given _class, note that if the service is a singleton always returns the same instance. This instance is obtained by calling #get()
+	 * @param _args arguments to use with constructor if instantiation is necessary
 	 * @param <T> type of the interface to implement
 	 * @param _class class to cast when service is returned
 	 * @return the service instance cast to _class
-	 * @see #get() 
+	 * @see #get(java.lang.Object...) 
+	 * @since 1.2.0
 	 */
-	public default <T> T get(final Class<T> _class){
-		return (T)get();
+	public default <T> T get(final Class<T> _class,final Object... _args){
+		return (T)get(_args);
 	}
 	/**
 	 * Method to obtain the service instance, note that if the service is a singleton always returns the same instance. This instance is obtained by calling ServiceSupplie#tryGet()
+	 * @param _args arguments to use with constructor if instantiation is necessary
 	 * @return the optional service instance as Object that can be empty if the instance can not be obtained
-	 * @see ServiceSupplier#tryGet() 
+	 * @see ServiceSupplier#tryGet(java.lang.Object...) 
+	 * @since 1.2.0
 	 */
-	public default Optional<Object> tryGet(){
-		return getServiceSupplier().tryGet();
+	public default Optional<Object> tryGet(final Object... _args){
+		return getServiceSupplier().tryGet(_args);
 	}
 	/**
 	 * Method to obtain the service instance casted to the given _class, note that if the service is a singleton always returns the same instance. This instance is obtained by calling #tryGet()
+	 * @param _args arguments to use with constructor if instantiation is necessary
 	 * @param <T> type of the interface to implement
 	 * @param _class class to cast when service is returned
 	 * @return the optional service instance as Object that can be empty if the instance can not be obtained
-	 * @see #tryGet() 
+	 * @see #tryGet(java.lang.Object...)
+	 * @since 1.2.0
 	 */
-	public default <T> Optional<T> tryGet(final Class<T> _class){
-		return tryGet()
+	public default <T> Optional<T> tryGet(final Class<T> _class,final Object... _args){
+		return tryGet(_args)
 				.map(object -> (T)object);
 	}
 	/**

@@ -31,6 +31,7 @@ import org.bytemechanics.service.repository.internal.ObjectFactory;
  * Service supplier interface to store all service metadata information and the current instance in case of singletons
  * @author afarre
  * @since 0.1.0
+ * @version 1.1.0
  */
 public interface ServiceSupplier extends Supplier {
 
@@ -45,6 +46,11 @@ public interface ServiceSupplier extends Supplier {
 	 */
 	public Class getAdapter();
 	/**
+	 * Method to return the service implementation class
+	 * @return Service class that implements getAdapter()
+	 */
+	public Class getImplementation();
+	/**
 	 * Method to return if the service must be instantiated as singleton (only on instance in all virtual machine)
 	 * @return true if the this service is a singleton
 	 */
@@ -55,6 +61,26 @@ public interface ServiceSupplier extends Supplier {
 	 * @see Supplier
 	 */
 	public Supplier getSupplier();
+	/**
+	 * Method to store a new supplier service instance
+	 * @param _supplier supplier to provides service instance 
+	 * @since v1.2.0
+	 */
+	public void setSupplier(final Supplier _supplier);	
+	/**
+	 * Method to return the current supplier for this service or if the _args it's not null nor empty returns a new supplier with these arguments.
+	 * @param _args arguments to use to create the supplier (optional)
+	 * @return the Supplier for this service
+	 * @see Supplier
+	 * @since 1.2.0
+	 */
+	public default Supplier provideSupplier(final Object... _args){
+		return (Supplier)Optional.ofNullable(_args)
+							.filter(arguments -> arguments.length>0)
+							.filter(arguments -> getImplementation()!=null)
+							.map(arguments -> generateSupplier(getName(),getImplementation(), arguments))
+							.orElse(getSupplier());
+	}
 
 	/**
 	 * Method to retrieve the current singleton service instance
@@ -68,16 +94,18 @@ public interface ServiceSupplier extends Supplier {
 	public void setInstance(final Object _instance);	
 	
 	/**
-	 * Method to obtain the service instance, note that if the service is a singleton always returns the same instance
+	 * Method to obtain the service instance, note that if the service is a singleton always returns the same instance.
+	 * if _args it's not null nor empty and doesn't exist any instance, a new supplier is generated with this new parameters and used ony for this occasion.
+	 * @param _args arguments to use to instance in case its not singleton and already instanced
 	 * @return the optional service instance as Object that can be empty if the instance can not be obtained
 	 */
 	@SuppressWarnings("DoubleCheckedLocking")
-	public default Optional<Object> tryGet() {
+	public default Optional<Object> tryGet(final Object... _args) {
 		
 		Optional<Object> reply=Optional.empty();
 
 		try{
-			reply=Optional.ofNullable(get());
+			reply=Optional.ofNullable(get(_args));
 		}catch(Throwable e){
 			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,e,() -> MessageFormat.format("service::supplier::service::{0}::get::fail::{1}",getName(),e.getMessage()));
 		}
@@ -93,8 +121,21 @@ public interface ServiceSupplier extends Supplier {
 	 * @see Supplier#get() 
 	 */
 	@Override
-	@SuppressWarnings("DoubleCheckedLocking")
 	public default Object get() {
+		return get(new Object[0]);
+	}
+
+	
+	/**
+	 * Method to obtain the service instance, if is a singleton synchronized set the instance with #setInstance(instance) <br>
+	 * Note that if the service is a singleton always returns the same instance if _args it's not null nor empty and doesn't exist any instance,
+	 * a new supplier is generated with this new parameters and used ony for this occasion.
+	 * @param _args arguments to use to instance in case its not singleton and already instanced
+	 * @return the service instance as Object or null if the instance can not be obtained
+	 * @throws ServiceInitializationException when service can not be instantiated
+	 */
+	@SuppressWarnings("DoubleCheckedLocking")
+	public default Object get(final Object... _args) {
 		
 		Object reply;
 
@@ -104,14 +145,14 @@ public interface ServiceSupplier extends Supplier {
 				synchronized(this){
 					current=getInstance();
 					if(current==null){
-						current=getSupplier().get();
+						current=provideSupplier(_args).get();
 						setInstance(current);
 					}			
 				}
 			}
 			reply=current;
 		}else{
-			reply=getSupplier().get();
+			reply=provideSupplier(_args).get();
 		}
 				
 		return reply;

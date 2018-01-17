@@ -19,18 +19,39 @@ import org.bytemechanics.service.repository.mocks.DummieServiceRepository
 import org.bytemechanics.service.repository.mocks.DummieServiceRepositoryNoErrors
 import org.bytemechanics.service.repository.mocks.DummieService
 import org.bytemechanics.service.repository.mocks.DummieServiceImpl
+import org.bytemechanics.service.repository.mocks.DummieServiceRepositoryTypeSave
 import org.bytemechanics.service.repository.exceptions.ServiceInitializationException
+import org.bytemechanics.service.repository.exceptions.ServiceDisposeException
 import java.text.MessageFormat
 import spock.lang.Specification
 import spock.lang.Unroll
+import java.util.logging.*
+import java.util.stream.*
+
 
 /**
  * @author afarre
  */
 class ServiceRepositorySpec extends Specification{
 	
+	def setupSpec(){
+		println(">>>>> ServiceRepositorySpec >>>> setupSpec")
+		final InputStream inputStream = ServiceRepositorySpec.class.getResourceAsStream("/logging.properties");
+		try{
+			LogManager.getLogManager().readConfiguration(inputStream);
+		}catch (final IOException e){
+			Logger.getAnonymousLogger().severe("Could not load default logging.properties file");
+			Logger.getAnonymousLogger().severe(e.getMessage());
+		}finally{
+			if(inputStream!=null)
+				inputStream.close();
+		}
+	}
+	
 	@Unroll
-	def "Service repository must return a valid #serviceAdapter instance when call get to the corresponding #service.name of service repository"(){
+	def "Service repository #service must return a valid #service.adapter instance when call get"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository $service must return a valid $service.adapter instance when call get")
+
 		when:
 			def instance=service.get()
 			
@@ -39,35 +60,28 @@ class ServiceRepositorySpec extends Specification{
 			service.getAdapter().isAssignableFrom(instance.getClass())
 			
 		where:
-			service															| serviceAdapter
-			DummieServiceRepository.DUMMIE_SERVICE_0ARG						| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_1ARG						| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_3ARG						| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_0ARG			| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_1ARG			| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_3ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_0ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_1ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_3ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG	| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG	| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG	| DummieService.class
+			service	<< 	DummieServiceRepositoryNoErrors.values()
 	}
 	
 	@Unroll
-	def "Service repository must return an exception when can not instance #service instance"(){
+	def "Service repository must return an #exception when can not instance #service instance"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository must return an $exception when can not instance $service instance")
+
 		when:
 			def instance=service.get()
 			
 		then:
-			thrown(ServiceInitializationException)
+			thrown(exception)
 			
 		where:
 			service	<< [DummieServiceRepository.DUMMIE_SERVICE_4ARG,DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_4ARG]
+			exception=ServiceInitializationException.class
 	}
 
 	@Unroll
-	def "Service repository must return a valid Optional of #service.adapter instance when call tryget to the corresponding #service.name of service repository"(){
+	def "Service repository #service must return a valid Optional of #service.adapter instance when call tryget"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository $service must return a valid Optional of $service.adapter instance when call tryget")
+
 		when:
 			def optionalInstance=service.tryGet()
 			
@@ -77,23 +91,12 @@ class ServiceRepositorySpec extends Specification{
 			service.getAdapter().isAssignableFrom(optionalInstance.get().getClass())
 			
 		where:
-			service															| serviceAdapter
-			DummieServiceRepository.DUMMIE_SERVICE_0ARG						| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_1ARG						| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_3ARG						| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_0ARG			| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_1ARG			| DummieService.class
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_3ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_0ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_1ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_3ARG			| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG	| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG	| DummieService.class
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG	| DummieService.class
+			service << DummieServiceRepositoryNoErrors.values()
 	}
 
 	@Unroll
-	def "Service repository must return #same #service.adapter #type instance when call get"(){
+	def "Service repository #service must return the same #serviceAdapter instance when call get on singletons"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository $service must return the same $serviceAdapter instance when call get on singletons")
 		
 		when:
 			def instance1=service.get(serviceAdapter)
@@ -102,32 +105,38 @@ class ServiceRepositorySpec extends Specification{
 		then:
 			instance1!=null
 			instance2!=null
-			if(type=="same"){
-				instance1==instance2
-			}else{
-				instance1!=instance2
-			}
+			instance1==instance2
 			
 		where:
-			service															| serviceAdapter		| type
-			DummieServiceRepository.DUMMIE_SERVICE_0ARG						| DummieService.class	| ""
-			DummieServiceRepository.DUMMIE_SERVICE_1ARG						| DummieService.class	| ""
-			DummieServiceRepository.DUMMIE_SERVICE_3ARG						| DummieService.class	| ""
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_0ARG			| DummieService.class	| ""
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_1ARG			| DummieService.class	| ""
-			DummieServiceRepository.DUMMIE_SERVICE_SUPPLIER_3ARG			| DummieService.class	| ""
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_0ARG			| DummieService.class	| "singleton"
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_1ARG			| DummieService.class	| "singleton"
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_3ARG			| DummieService.class	| "singleton"
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG	| DummieService.class	| "singleton"
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG	| DummieService.class	| "singleton"
-			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG	| DummieService.class	| "singleton"
-			
-			same=(type=="singleton")? "same" : "distinct"
+			service << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
+			serviceAdapter=DummieService.class
 	}
 
 	@Unroll
-	def "Service repository must return #exception when try to instance an inexistent #service constructor "(){
+	def "Service repository #service must return distinct #serviceAdapter instance when call get on singletons"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository $service must return distinct $serviceAdapter instance when call get on singletons")
+		
+		when:
+			def instance1=service.get(serviceAdapter)
+			def instance2=service.get()
+			
+		then:
+			instance1!=null
+			instance2!=null
+			instance1!=instance2
+			
+		where:
+			service << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> !serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
+			serviceAdapter=DummieService.class
+	}
+
+	@Unroll
+	def "Service repository must return #exception when try to instance an inexistent #service constructor"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository must return $exception when try to instance an inexistent $service constructor")
 		
 		when:
 			def instance=service.get()
@@ -150,6 +159,7 @@ class ServiceRepositorySpec extends Specification{
 
 	@Unroll
 	def "Singleton #service should provide a distinct instance once dispose"(){
+		println(">>>>> ServiceRepositorySpec >>>> Singleton $service should provide a distinct instance once dispose")
 		
 		when:
 			def instance1=service.get()
@@ -165,18 +175,15 @@ class ServiceRepositorySpec extends Specification{
 			(instance1==instance2)!=instance3
 			
 		where:
-			service	<< [
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_0ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_1ARG,			
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_3ARG,	
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG,		
-			]
+			service << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
 	}
 	
 	@Unroll
 	def "Singleton #service should initialize instance once called init"(){
+		println(">>>>> ServiceRepositorySpec >>>> Singleton $service should initialize instance once called init")
+		
 		setup:
 			service.serviceSupplier.instance=null
 																	
@@ -190,18 +197,15 @@ class ServiceRepositorySpec extends Specification{
 			instance2!=null
 			
 		where:
-			service	<< [
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_0ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_1ARG,			
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_3ARG,	
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG,		
-			]
+			service << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
 	}
 	
 	@Unroll
 	def "Singleton #service instance should be able to be replaced with #instance"(){
+		println(">>>>> ServiceRepositorySpec >>>> Singleton $service instance should be able to be replaced with $instance")
+
 		setup:
 			DummieServiceRepositoryNoErrors.startup()
 																	
@@ -217,74 +221,130 @@ class ServiceRepositorySpec extends Specification{
 			replacedInstance==instance
 			
 		where:
-			service	<< [
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_0ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_1ARG,			
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_3ARG,	
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG,
-				DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG,		
-			]
+			service << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
 			instance=new DummieServiceImpl();
 	}
 	
-	@Unroll
 	def "Service repository should initialize all services on startup call"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository should initialize all services on startup call")
+		
 		setup:
-			for(DummieServiceRepositoryNoErrors service:DummieServiceRepositoryNoErrors.values()){
-				service.serviceSupplier.instance=null
-			}
+			DummieServiceRepositoryNoErrors.shutdown()
 																	
 		when:
 			DummieServiceRepositoryNoErrors.startup()
-			
+					
 		then:
-			for(DummieServiceRepositoryNoErrors service:DummieServiceRepositoryNoErrors.values()){
-				if(service.isSingleton()){
-					service.serviceSupplier.instance!=null
-				}
-			}
+			serviceRepository.serviceSupplier.instance!=null
+
+		where:
+			serviceRepository << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
 	}
-	@Unroll
-	def "Service repository should dispose all services on shutdown call"(){
+	
+	def "On shutdown service repository should raise a serviceDisposeException if some service can not be disposed"(){
+		println(">>>>> ServiceRepositorySpec >>>> On shutdown service repository should raise a serviceDisposeException if some service can not be disposed")
+
 		setup:
-			for(DummieServiceRepositoryNoErrors service:DummieServiceRepositoryNoErrors.values()){
-				if(service.isSingleton()){
-					service.init()
-				}
-			}
+			Stream.of(DummieServiceRepositoryNoErrors.values())
+						.filter({serviceRepo -> serviceRepo.isSingleton()})
+						.forEach({serviceRepo -> serviceRepo.init()})
+			DummieServiceRepositoryNoErrors.SINGLETON_DUMMIE_SERVICE_0ARG
+												.get(DummieServiceImpl.class)
+												.setFailOnClose(true);
 																	
 		when:
 			DummieServiceRepositoryNoErrors.shutdown()
 			
 		then:
-			for(DummieServiceRepositoryNoErrors service:DummieServiceRepositoryNoErrors.values()){
-				if(service.isSingleton()){
-					service.serviceSupplier.instance==null
-				}
-			}
+			Throwable cause=thrown(ServiceDisposeException)
+		
+		cleanup:
+			DummieServiceRepositoryNoErrors.SINGLETON_DUMMIE_SERVICE_0ARG
+												.get(DummieServiceImpl.class)
+												.setFailOnClose(false);
 	}
-	@Unroll
-	def "Service repository should reinstance all services on reset call"(){
+	
+	def "Service repository should dispose all services on shutdown call"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository should dispose all services on shutdown call")
+		
 		setup:
-			def Map instances=new HashMap();
-			for(DummieServiceRepositoryNoErrors service:DummieServiceRepositoryNoErrors.values()){
-				if(service.isSingleton()){
-					service.init()
-					instances.put(service.name(),service.serviceSupplier.instance);
+			serviceRepository.init()
+			def initial=serviceRepository.get()
+																	
+		when:
+			DummieServiceRepositoryNoErrors.shutdown()
 					
-				}
-			}
+		then:
+			serviceRepository.serviceSupplier.instance==null
+
+		where:
+			serviceRepository << DummieServiceRepositoryNoErrors.values()
+	}
+	
+	def "Service repository singletons should be have distinct instance after reset call"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository singletons should be have distinct instance after reset call")
+
+		setup:
+			serviceRepository.init()
+			def initial=serviceRepository.get()
 																	
 		when:
 			DummieServiceRepositoryNoErrors.reset()
-			
+					
 		then:
-			for(DummieServiceRepositoryNoErrors service:DummieServiceRepositoryNoErrors.values()){
-				if(service.isSingleton()){
-					service.serviceSupplier.instance!=instances.get(service.name())
-				}
-			}
+			serviceRepository.get()==serviceRepository.get()
+			serviceRepository.get()!=initial
+
+		where:
+			serviceRepository << Stream.of(DummieServiceRepositoryNoErrors.values())
+										.filter({serviceRepo -> serviceRepo.isSingleton()})
+										.collect(Collectors.toList())
+	}
+	
+	def "Check correct types match in recovery with arguments"(){
+		println(">>>>> ServiceRepositorySpec >>>> Check correct types match in recovery with arguments")
+
+		setup:
+			DummieServiceRepositoryNoErrors.reset()
+			def DummieServiceRepositoryTypeSave test=new DummieServiceRepositoryTypeSave()
+			def DummieService testArg0
+			def DummieService testArg1
+			def DummieService testArg3
+			def DummieService testArg0Try
+			def DummieService testArg1Try
+			def DummieService testArg3Try
+												
+		when:
+			testArg0=test.testArg0()
+			testArg1=test.testArg1()
+			testArg3=test.testArg3()
+			testArg0Try=test.testArg0Try()
+			testArg1Try=test.testArg1Try()
+			testArg3Try=test.testArg3Try()
+		
+		then:
+			testArg0.getArg1()==""
+			testArg0.getArg2()==0
+			testArg0.getArg3()==""
+			testArg1.getArg1()=="1arg-arg1"
+			testArg1.getArg2()==0
+			testArg1.getArg3()==""
+			testArg3.getArg1()=="3arg-arg1"
+			testArg3.getArg2()==3
+			testArg3.getArg3()=="3arg-arg2"
+			testArg0Try.getArg1()==""
+			testArg0Try.getArg2()==0
+			testArg0Try.getArg3()==""
+			testArg1Try.getArg1()=="1arg-arg1"
+			testArg1Try.getArg2()==0
+			testArg1Try.getArg3()==""
+			testArg3Try.getArg1()=="3arg-arg1"
+			testArg3Try.getArg2()==3
+			testArg3Try.getArg3()=="3arg-arg2"
 	}
 }
 

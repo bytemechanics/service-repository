@@ -26,9 +26,9 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- *
+ * Factory to create objects
  * @author afarre 
- * @param <T> 
+ * @param <T> Type of class to instantiate
  */
 public class ObjectFactory<T> {
 

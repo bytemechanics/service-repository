@@ -21,37 +21,49 @@ import org.bytemechanics.service.repository.mocks.DummieService;
 import org.bytemechanics.service.repository.mocks.DummieServiceImpl;
 import spock.lang.Specification;
 import spock.lang.Unroll
+import java.util.logging.*
+
 
 /**
  * @author afarre
  */
 class ServiceSupplierSpec extends Specification{
+
+	def setupSpec(){
+		println(">>>>> ServiceSupplierSpec >>>> setupSpec")
+		final InputStream inputStream = ServiceSupplierSpec.class.getResourceAsStream("/logging.properties");
+		try{
+			LogManager.getLogManager().readConfiguration(inputStream);
+		}catch (final IOException e){
+			Logger.getAnonymousLogger().severe("Could not load default logging.properties file");
+			Logger.getAnonymousLogger().severe(e.getMessage());
+		}finally{
+			if(inputStream!=null)
+				inputStream.close();
+		}
+	}
 	
 	@Unroll
-	def "when generate supplier of #adapter from #implementation with #arguments should return a supplier that returns an instance of #implementation"(){
+	def "When generates supplier of #adapter from #implementation with #arguments should return a supplier that returns an instance of #implementation"(){
+		println(">>>>> ServiceSupplierSpec >>>> when generate supplier of $adapter from $implementation with $arguments should return a supplier that returns an instance of $implementation")
 	
 		when:
 			def supplier=ServiceSupplier.generateSupplier("mySupplier",implementation,(Object[])arguments)
+			def instance=(supplier!=null)? supplier.get() : null
+			def args=(instance!=null)? [instance.getArg1(),instance.getArg2(),instance.getArg3()] : null
 
 		then:
 			supplier!=null
-			service.isAssignableFrom(supplier.get().getClass())
-			implementation.equals(supplier.get().getClass())
-			if(arguments.size()>0){
-				arguments[0]==supplier.get().getArg1()
-				if(arguments.size()>1){
-					arguments[1]==supplier.get().getArg2()
-					if(arguments.size()>2){
-						arguments[2]==supplier.get().getArg3()
-					}
-				}
-			}
+			instance!=null
+			implementation.equals(instance.getClass())
+			expected==args
 			
 		where:
-			service					| implementation			| arguments
+			adapter					| implementation			| arguments
 			DummieService.class		| DummieServiceImpl.class	| []
 			DummieService.class		| DummieServiceImpl.class	| ["1arg-arg1"]
 			DummieService.class		| DummieServiceImpl.class	| ["1arg-arg1",3,"3arg-arg2"]
+			expected=[(arguments.size()>0)? arguments[0] : "",(arguments.size()>1)? arguments[1] : 0,(arguments.size()>2)? arguments[2] : ""]			
 	}
 }
 
