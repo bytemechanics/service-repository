@@ -1,4 +1,9 @@
 # Service Repository
+[![Latest version](https://maven-badges.herokuapp.com/maven-central/org.bytemechanics/service-repository/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.bytemechanics/service-repository/badge.svg)
+[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=org.bytemechanics%3Aservice-repository)](https://sonarcloud.io/dashboard/index/org.bytemechanics%3Aservice-repository)
+[![Coverage](https://sonarcloud.io/api/badges/measure?key=org.bytemechanics%3Aservice-repository&metric=coverage)](https://sonarcloud.io/dashboard/index/org.bytemechanics%3Aservice-repository)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 Service Repository it's a library to simplify the task to define and unify the distinct services existing inside any application.
 Allows:
 * Create stateful services (singletons)
