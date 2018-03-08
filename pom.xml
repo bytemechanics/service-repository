@@ -43,7 +43,7 @@
 			<plugin>
 				<groupId>org.bytemechanics.maven</groupId>
 				<artifactId>copysource-maven-plugin</artifactId>
-				<version>0.1.0-SNAPSHOT</version>
+				<version>1.0.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -52,7 +52,7 @@
 						<configuration>
 							<copies>
 								<copy>
-									<artifact>${project.groupId}:copy-commons:1.2.0</artifact>
+									<artifact>${project.groupId}:copy-commons:1.2.1-SNAPSHOT</artifact>
 									<classes>
 										<class>org.bytemechanics.commons.reflection.ObjectFactory</class>
 										<class>org.bytemechanics.commons.string.SimpleFormat</class>
