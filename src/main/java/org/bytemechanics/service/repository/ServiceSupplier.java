@@ -16,7 +16,6 @@
 package org.bytemechanics.service.repository;
 
 import java.io.Closeable;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -25,7 +24,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bytemechanics.service.repository.exceptions.ServiceDisposeException;
 import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
-import org.bytemechanics.service.repository.internal.ObjectFactory;
+import org.bytemechanics.service.repository.internal.commons.reflection.ObjectFactory;
+import org.bytemechanics.service.repository.internal.commons.string.SimpleFormat;
 
 /**
  * Service supplier interface to store all service metadata information and the current instance in case of singletons
@@ -107,7 +107,7 @@ public interface ServiceSupplier extends Supplier {
 		try{
 			reply=Optional.ofNullable(get(_args));
 		}catch(Throwable e){
-			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,e,() -> MessageFormat.format("service::supplier::service::{0}::get::fail::{1}",getName(),e.getMessage()));
+			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,e,() -> SimpleFormat.format("service::supplier::service::{}::get::fail::{}",getName(),e.getMessage()));
 		}
 				
 		return reply;
@@ -212,8 +212,8 @@ public interface ServiceSupplier extends Supplier {
 							.with(_attributes)
 							.supplier()
 							.get()
-							.orElseThrow(() -> new ServiceInitializationException(_name,MessageFormat
-																	.format("Unable to instantiate service with class {0} using constructor({1})", 
+							.orElseThrow(() -> new ServiceInitializationException(_name,SimpleFormat
+																	.format("Unable to instantiate service with class {} using constructor({})", 
 																		_implementation,
 																		Optional.ofNullable(_attributes)
 																				.map(Arrays::asList)

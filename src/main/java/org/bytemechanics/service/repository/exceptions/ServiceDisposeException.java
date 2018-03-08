@@ -15,8 +15,8 @@
  */
 package org.bytemechanics.service.repository.exceptions;
 
-import java.text.MessageFormat;
 import org.bytemechanics.service.repository.ServiceSupplier;
+import org.bytemechanics.service.repository.internal.commons.string.SimpleFormat;
 
 /**
  * Exception thrown when service can not be disposed for some reason
@@ -42,7 +42,7 @@ public class ServiceDisposeException extends RuntimeException{
 	 * @param _cause Underlaying ause of the service dispose failure
 	 */
 	public ServiceDisposeException(final String _serviceName,final String _message,final Throwable _cause) {
-		super(MessageFormat.format("Service {0} can not be disposed properly: {1}", _serviceName,_message),_cause);
+		super(SimpleFormat.format("Service {} can not be disposed properly: {}", _serviceName,_message),_cause);
 		this.serviceName=_serviceName;
 	}
 

@@ -38,34 +38,33 @@
 		<connection>https://github.com/bytemechanics/service-repository.git</connection>
 		<url>https://github.com/bytemechanics/service-repository</url>
 	</scm>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>2.9.2-01</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-batch</artifactId>
-                        <version>2.4.3-01 </version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <compilerId>groovy-eclipse-compiler</compilerId>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-eclipse-compiler</artifactId>
-                <version>2.9.2-01</version>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.bytemechanics.maven</groupId>
+				<artifactId>copysource-maven-plugin</artifactId>
+				<version>0.1.0-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>copy-classes</goal>
+						</goals>
+						<configuration>
+							<copies>
+								<copy>
+									<artifact>${project.groupId}:copy-commons:1.2.0</artifact>
+									<classes>
+										<class>org.bytemechanics.commons.reflection.ObjectFactory</class>
+										<class>org.bytemechanics.commons.string.SimpleFormat</class>
+									</classes>
+									<fromPackage>org.bytemechanics.commons</fromPackage>
+									<toPackage>org.bytemechanics.service.repository.internal.commons</toPackage>
+								</copy>
+							</copies>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

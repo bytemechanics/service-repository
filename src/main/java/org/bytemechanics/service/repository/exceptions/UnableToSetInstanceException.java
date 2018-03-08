@@ -15,7 +15,7 @@
  */
 package org.bytemechanics.service.repository.exceptions;
 
-import java.text.MessageFormat;
+import org.bytemechanics.service.repository.internal.commons.string.SimpleFormat;
 
 /**
  * Exception thrown when can not set an instance that does not implement or extend the required adapter
@@ -28,7 +28,7 @@ public class UnableToSetInstanceException extends RuntimeException {
 	/**
 	 * Message format to use
 	 */
-	protected static final String MESSAGE="Unable to set instance {0} that doesn''t implement the required adapter {1}";
+	protected static final String MESSAGE="Unable to set instance {} that doesn't implement the required adapter {}";
 
 
 	/**
@@ -38,6 +38,6 @@ public class UnableToSetInstanceException extends RuntimeException {
 	 * @since 1.0.0
 	 */
 	public UnableToSetInstanceException(final Object _instance,final Class _adapter) {
-		super(MessageFormat.format(MESSAGE,_instance,_adapter));
+		super(SimpleFormat.format(MESSAGE,_instance,_adapter));
 	}
 }

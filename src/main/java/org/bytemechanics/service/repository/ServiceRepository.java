@@ -15,13 +15,13 @@
  */
 package org.bytemechanics.service.repository;
 
-import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 import org.bytemechanics.service.repository.exceptions.ServiceDisposeException;
 import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
+import org.bytemechanics.service.repository.internal.commons.string.SimpleFormat;
 
 /**
  * Interface to implement for any service supplier, tipically an enum<br>
@@ -142,14 +142,14 @@ public interface ServiceRepository {
 		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		try{
-			logger.finest(() -> MessageFormat.format("service::factory::init::{0}::begin",name()));
+			logger.finest(() -> SimpleFormat.format("service::factory::init::{}::begin",name()));
 			getServiceSupplier().init();
-			logger.finest(() -> MessageFormat.format("service::factory::init::{0}::end",name()));
+			logger.finest(() -> SimpleFormat.format("service::factory::init::{}::end",name()));
 		}catch(ServiceInitializationException e){
-			logger.log(Level.SEVERE,e,() -> MessageFormat.format("service::factory::init::{0}::fail::{1}",name(),e.getMessage()));
+			logger.log(Level.SEVERE,e,() -> SimpleFormat.format("service::factory::init::{}::fail::{}",name(),e.getMessage()));
 			throw e;
 		}catch(RuntimeException e){
-			logger.log(Level.SEVERE,e,() -> MessageFormat.format("service::factory::init::{0}::fail::{1}",name(),e.getMessage()));
+			logger.log(Level.SEVERE,e,() -> SimpleFormat.format("service::factory::init::{}::fail::{}",name(),e.getMessage()));
 			throw new ServiceInitializationException(name(),e.getMessage(),e);
 		}
 	}
@@ -163,14 +163,14 @@ public interface ServiceRepository {
 		final Logger logger=Logger.getLogger(ServiceRepository.class.getName());
 
 		try{
-			logger.finest(() -> MessageFormat.format("service::factory::dispose::{0}::begin",name()));
+			logger.finest(() -> SimpleFormat.format("service::factory::dispose::{}::begin",name()));
 			getServiceSupplier().dispose();
-			logger.finest(() -> MessageFormat.format("service::factory::dispose::{0}::end",name()));
+			logger.finest(() -> SimpleFormat.format("service::factory::dispose::{}::end",name()));
 		}catch(ServiceDisposeException e){
-			logger.log(Level.SEVERE,e,() -> MessageFormat.format("service::factory::dispose::{0}::fail::{1}",name(),e.getMessage()));
+			logger.log(Level.SEVERE,e,() -> SimpleFormat.format("service::factory::dispose::{}::fail::{}",name(),e.getMessage()));
 			throw e;
 		}catch(Throwable e){
-			logger.log(Level.SEVERE,e,() -> MessageFormat.format("service::factory::dispose::{0}::fail::{1}",name(),e.getMessage()));
+			logger.log(Level.SEVERE,e,() -> SimpleFormat.format("service::factory::dispose::{}::fail::{}",name(),e.getMessage()));
 			throw new ServiceDisposeException(name(),e.getMessage(),e);
 		}
 	}
