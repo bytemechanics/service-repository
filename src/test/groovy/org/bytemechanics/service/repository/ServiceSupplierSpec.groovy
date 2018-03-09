@@ -65,5 +65,174 @@ class ServiceSupplierSpec extends Specification{
 			DummieService.class		| DummieServiceImpl.class	| ["1arg-arg1",3,"3arg-arg2"]
 			expected=[(arguments.size()>0)? arguments[0] : "",(arguments.size()>1)? arguments[1] : 0,(arguments.size()>2)? arguments[2] : ""]			
 	}
+
+	
+	@Unroll
+	def "Call ServiceSupplier.from(#name,#adapter,#singleton,#implementation,#args) should create the #expected instance"(){
+		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$args) should create the $expected  instance")
+
+		when:
+			def serviceSupplier=ServiceSupplier.from(name,adapter,singleton,implementation,(Object[])args)
+
+		then:
+			serviceSupplier!=null
+			serviceSupplier.getInstance()==null
+			serviceSupplier.getName()==name
+			serviceSupplier.getAdapter()==adapter
+			serviceSupplier.getSupplier()!=null
+			serviceSupplier.getSupplier().get() instanceof DummieServiceImpl
+			serviceSupplier.getSupplier().get().getArg1()==expected[0]
+			serviceSupplier.getSupplier().get().getArg2()==expected[1]
+			serviceSupplier.getSupplier().get().getArg3()==expected[2]
+			
+		where:
+			name										| adapter				| singleton	| implementation			| args
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"SINGLETON_DUMMIE_SERVICE_0ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| []
+			"SINGLETON_DUMMIE_SERVICE_1ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"SINGLETON_DUMMIE_SERVICE_3ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| []
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+
+			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
+	}
+	
+	@Unroll
+	def "Call ServiceSupplier.from(#name,#adapter,#implementation,#args) should create the #expected instance"(){
+		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$implementation,$args) should create the $expected  instance")
+
+		when:
+			def serviceSupplier=ServiceSupplier.from(name,adapter,implementation,(Object[])args)
+
+		then:
+			serviceSupplier!=null
+			serviceSupplier.getInstance()==null
+			serviceSupplier.getName()==name
+			serviceSupplier.getAdapter()==adapter
+			serviceSupplier.getSupplier()!=null
+			serviceSupplier.getSupplier().get() instanceof DummieServiceImpl
+			serviceSupplier.getSupplier().get().getArg1()==expected[0]
+			serviceSupplier.getSupplier().get().getArg2()==expected[1]
+			serviceSupplier.getSupplier().get().getArg3()==expected[2]
+			
+		where:
+			name										| adapter				| implementation			| args
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+	
+			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
+	}
+	
+	@Unroll
+	def "Call ServiceSupplier.from(#name,#adapter,#singleton,#implementation,#supplier) should create the #expected instance"(){
+		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$supplier) should create the $expected  instance")
+
+		when:
+			def serviceSupplier=ServiceSupplier.from(name,adapter,implementation,singleton,supplier)
+
+		then:
+			serviceSupplier!=null
+			serviceSupplier.getInstance()==null
+			serviceSupplier.getName()==name
+			serviceSupplier.getAdapter()==adapter
+			serviceSupplier.getSupplier()!=null
+			serviceSupplier.getSupplier().get() instanceof DummieServiceImpl
+			serviceSupplier.getSupplier().get().getArg1()==expected[0]
+			serviceSupplier.getSupplier().get().getArg2()==expected[1]
+			serviceSupplier.getSupplier().get().getArg3()==expected[2]
+			
+		where:
+			name										| adapter				| singleton	| implementation			| args							| supplier
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| []							| { -> new DummieServiceImpl()}
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| []							| { -> new DummieServiceImpl()}
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"SINGLETON_DUMMIE_SERVICE_0ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| []							| { -> new DummieServiceImpl()}
+			"SINGLETON_DUMMIE_SERVICE_1ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"SINGLETON_DUMMIE_SERVICE_3ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| []							| { -> new DummieServiceImpl()}
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+
+			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
+	}
+	
+	@Unroll
+	def "Call ServiceSupplier.from(#name,#adapter,#singleton,#supplier) should create the #expected instance"(){
+		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$supplier) should create the $expected  instance")
+
+		when:
+			def serviceSupplier=ServiceSupplier.from(name,adapter,singleton,supplier)
+
+		then:
+			serviceSupplier!=null
+			serviceSupplier.getInstance()==null
+			serviceSupplier.getName()==name
+			serviceSupplier.getAdapter()==adapter
+			serviceSupplier.getSupplier()!=null
+			serviceSupplier.getSupplier().get() instanceof DummieServiceImpl
+			serviceSupplier.getSupplier().get().getArg1()==expected[0]
+			serviceSupplier.getSupplier().get().getArg2()==expected[1]
+			serviceSupplier.getSupplier().get().getArg3()==expected[2]
+			
+		where:
+			name										| adapter				| singleton		| args							| supplier
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| false			| []							| { -> new DummieServiceImpl()}
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| false			| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| false			| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| false			| []							| { -> new DummieServiceImpl()}
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| false			| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| false			| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"SINGLETON_DUMMIE_SERVICE_0ARG"				| DummieService.class	| true			| []							| { -> new DummieServiceImpl()}
+			"SINGLETON_DUMMIE_SERVICE_1ARG"				| DummieService.class	| true			| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"SINGLETON_DUMMIE_SERVICE_3ARG"				| DummieService.class	| true			| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG"	| DummieService.class	| true			| []							| { -> new DummieServiceImpl()}
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG"	| DummieService.class	| true			| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG"	| DummieService.class	| true			| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+
+			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
+	}
+	
+	@Unroll
+	def "Call ServiceSupplier.from(#name,#adapter,#supplier) should create the #expected instance"(){
+		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$supplier) should create the $expected  instance")
+
+		when:
+			def serviceSupplier=ServiceSupplier.from(name,adapter,supplier)
+
+		then:
+			serviceSupplier!=null
+			serviceSupplier.getInstance()==null
+			serviceSupplier.getName()==name
+			serviceSupplier.getAdapter()==adapter
+			serviceSupplier.getSupplier()!=null
+			serviceSupplier.getSupplier().get() instanceof DummieServiceImpl
+			serviceSupplier.getSupplier().get().getArg1()==expected[0]
+			serviceSupplier.getSupplier().get().getArg2()==expected[1]
+			serviceSupplier.getSupplier().get().getArg3()==expected[2]
+			
+		where:
+			name										| adapter				| args							| supplier
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| []							| { -> new DummieServiceImpl()}
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| []							| { -> new DummieServiceImpl()}
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| ["1arg-arg1"]					| { -> new DummieServiceImpl("1arg-arg1")}
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
+
+			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
+	}
 }
 

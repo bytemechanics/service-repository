@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.exceptions.ServiceDisposeException;
 import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
 import org.bytemechanics.service.repository.internal.commons.reflection.ObjectFactory;
@@ -218,5 +219,78 @@ public interface ServiceSupplier extends Supplier {
 																		Optional.ofNullable(_attributes)
 																				.map(Arrays::asList)
 																				.orElse(Collections.emptyList()))));
+	}
+	
+	
+	/**
+	 * Constructor of service supplier
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _iimplementation must implement
+	 * @param _supplier adapter class implementation supplier
+	 * @return default ServiceSupplier instance
+	 * @see DefaultServiceSupplier#DefaultServiceSupplier(java.lang.String, java.lang.Class, java.util.function.Supplier) 
+	 * @since 1.3.0
+	 */
+	public static <T extends Object> ServiceSupplier from(final String _name,final Class<T> _adapter,final Supplier<? extends T> _supplier){
+		return new DefaultServiceSupplier(_name, _adapter, _supplier);
+	}
+	/**
+	 * Creates a service supplier default implementation
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _iimplementation must implement
+	 * @param _implementation service implementation class
+	 * @param _args	Service arguments
+	 * @return default ServiceSupplier instance
+	 * @see DefaultServiceSupplier#DefaultServiceSupplier(java.lang.String, java.lang.Class, java.lang.Class, java.lang.Object...) 
+	 * @since 1.3.0
+	 */
+	public static <T extends Object> ServiceSupplier from(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final Object[] _args){
+		return new DefaultServiceSupplier(_name, _adapter, _implementation, _args);
+	}
+	/**
+	 * Constructor of service supplier
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _iimplementation must implement
+	 * @param _isSingleton  singleton flag
+	 * @param _supplier adapter class implementation supplier
+	 * @return default ServiceSupplier instance
+	 * @see DefaultServiceSupplier#DefaultServiceSupplier(java.lang.String, java.lang.Class, boolean, java.util.function.Supplier) 
+	 * @since 1.3.0
+	 */
+	public static <T extends Object> ServiceSupplier from(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Supplier<? extends T> _supplier){
+		return new DefaultServiceSupplier(_name, _adapter, _adapter, _isSingleton, _supplier);
+	}
+	/**
+	 * Constructor of service supplier
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _implementation must implement
+	 * @param _implementation implementation of the _adapter (optional)
+	 * @param _isSingleton  singleton flag
+	 * @param _supplier adapter class implementation supplier
+	 * @return default ServiceSupplier instance
+	 * @see DefaultServiceSupplier#DefaultServiceSupplier(java.lang.String, java.lang.Class, java.lang.Class, boolean, java.util.function.Supplier) 
+	 * @since 1.3.0
+	 */
+	public static <T extends Object> ServiceSupplier from(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final boolean _isSingleton,final Supplier<? extends T> _supplier){
+		return new DefaultServiceSupplier(_name, _adapter, _implementation,_isSingleton,_supplier);
+	}
+	/**
+	 * Constructor of service supplier
+	 * @param <T> adapter class type
+	 * @param _name Service name
+	 * @param _adapter interface class that _iimplementation must implement
+	 * @param _isSingleton  singleton flag
+	 * @param _implementation service implementation class
+	 * @param _args	Service arguments
+	 * @return default ServiceSupplier instance
+	 * @see DefaultServiceSupplier#DefaultServiceSupplier(java.lang.String, java.lang.Class, boolean, java.lang.Class, java.lang.Object...) 
+	 * @since 1.3.0
+	 */
+	public static <T extends Object> ServiceSupplier from(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Class<? extends T> _implementation,final Object[] _args){
+		return new DefaultServiceSupplier(_name, _adapter, _isSingleton, _implementation, _args);
 	}
 }

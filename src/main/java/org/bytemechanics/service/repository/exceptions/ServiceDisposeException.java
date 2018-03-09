@@ -31,14 +31,6 @@ public class ServiceDisposeException extends RuntimeException{
 	 * Service dispose exception constructor
 	 * @param _serviceName Service name should be obtained from the corresponding ServiceSupplier
 	 * @param _message Descriptive message of the reason because service can not be disposed
-	 */
-	public ServiceDisposeException(final String _serviceName,final String _message) {
-		this(_serviceName,_message,null);
-	}
-	/**
-	 * Service dispose exception constructor
-	 * @param _serviceName Service name should be obtained from the corresponding ServiceSupplier
-	 * @param _message Descriptive message of the reason because service can not be disposed
 	 * @param _cause Underlaying ause of the service dispose failure
 	 */
 	public ServiceDisposeException(final String _serviceName,final String _message,final Throwable _cause) {
