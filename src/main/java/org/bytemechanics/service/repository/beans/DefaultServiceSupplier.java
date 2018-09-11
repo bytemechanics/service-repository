@@ -159,7 +159,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	
 	/**
 	 * Helper class to instantiate ServiceSupplier
-	 * @param <TYPE>
+	 * @param <TYPE> type of the adapter to build supplier
 	 * @since 1.3.0
 	 */
 	public static class DefaultServiceSupplierBuilder<TYPE>{

@@ -269,7 +269,7 @@ public interface ServiceSupplier extends Supplier {
 	 * @param <T> type of the default service supplier
 	 * @param _adapter adapter class
 	 * @return a builder for DefaultServiceSupplier
-	 * @see DefaultServiceSupplierBuilder
+	 * @see DefaultServiceSupplier.DefaultServiceSupplierBuilder
 	 * @since 1.3.0
 	 */
 	@java.lang.SuppressWarnings("all")
