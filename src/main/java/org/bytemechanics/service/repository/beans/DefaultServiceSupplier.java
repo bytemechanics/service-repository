@@ -17,6 +17,7 @@ package org.bytemechanics.service.repository.beans;
 
 import java.util.function.Supplier;
 import org.bytemechanics.service.repository.ServiceSupplier;
+import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
 import org.bytemechanics.service.repository.exceptions.UnableToSetInstanceException;
 
 /**
@@ -181,4 +182,100 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 		}
 		this.instance = _instance;
 	}
+	
+	/**
+	 * Helper class to instantiate ServiceSupplier
+	 * @param <TYPE>
+	 * @since 1.3.0
+	 */
+	public static class DefaultServiceSupplierBuilder<TYPE>{
+		
+		private String name;
+		private Supplier supplier;
+		private final Class<TYPE> adapter;
+		private Class<? extends TYPE> implementation;
+		private boolean singleton;
+		private Object[] args;
+	
+		public DefaultServiceSupplierBuilder(final Class<TYPE> _adapter){
+			this.name=null;
+			this.supplier=null;
+			this.adapter=_adapter;
+			this.implementation=null;
+			this.singleton=false;
+			this.args=new Object[0];
+		}
+		
+		/**
+		 * Sets the name to the builder
+		 * @param _name value
+		 * @return DefaultServiceSupplierBuilder
+		 */
+		public DefaultServiceSupplierBuilder<TYPE> name(final String _name) {
+			this.name = _name;
+			return this;
+		}
+		/**
+		 * Sets the supplier to the builder
+		 * @param _supplier value
+		 * @return DefaultServiceSupplierBuilder
+		 */
+		public DefaultServiceSupplierBuilder<TYPE> supplier(final Supplier _supplier) {
+			this.supplier = _supplier;
+			return this;
+		}
+		/**
+		 * Sets the arguments to the builder
+		 * @param _arguments arguments to use to create a supplier from implementation
+		 * @return DefaultServiceSupplierBuilder
+		 */
+		public DefaultServiceSupplierBuilder<TYPE> args(final Object... _arguments) {
+			this.args = _arguments;
+			return this;
+		}
+		/**
+		 * Sets the implementation to the builder
+		 * @param _implementation value
+		 * @return DefaultServiceSupplierBuilder
+		 */
+		public DefaultServiceSupplierBuilder<TYPE> implementation(final Class<? extends TYPE> _implementation) {
+			this.implementation = _implementation;
+			return this;
+		}
+		/**
+		 * Sets the singleton to the builder
+		 * @param _singleton value
+		 * @return DefaultServiceSupplierBuilder
+		 */
+		public DefaultServiceSupplierBuilder<TYPE> singleton(final boolean _singleton) {
+			this.singleton = _singleton;
+			return this;
+		}
+		
+		/**
+		 * Create the DefaultServiceSupplier instance configured with the builder values
+		 * @return DefaultServiceSupplier
+		 */
+		public DefaultServiceSupplier build() {
+
+			if(this.supplier!=null){
+				return new DefaultServiceSupplier(name, adapter, implementation, singleton, supplier);
+			}else if(this.implementation!=null){
+				return new DefaultServiceSupplier(name, adapter, singleton, implementation, args);
+			}else throw new ServiceInitializationException(name,"Unable to create service supplier without supplier or implementation");
+		}
+	}
+
+	/**
+	 * Instantiate builder for DefaultServiceSupplier
+	 * @param <T> type of the default service supplier
+	 * @param _adapter adapter class
+	 * @return a builder for DefaultServiceSupplier
+	 * @see DefaultServiceSupplierBuilder
+	 * @since 1.3.0
+	 */
+	@java.lang.SuppressWarnings("all")
+	public static <T> DefaultServiceSupplierBuilder<T> builder(final Class<T> _adapter) {
+		return new DefaultServiceSupplierBuilder<>(_adapter);
+	}	
 }
