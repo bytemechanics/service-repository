@@ -29,6 +29,7 @@ import org.bytemechanics.service.repository.exceptions.UnableToSetInstanceExcept
 public class DefaultServiceSupplier implements ServiceSupplier{
 
 	private final String name;
+	private final Supplier originalSupplier;
 	private Supplier supplier;
 	private final Class adapter;
 	private final Class implementation;
@@ -94,7 +95,8 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 		this.name=_name;
 		this.adapter=_adapter;
 		this.singleton=_isSingleton;
-		this.supplier=_supplier;
+		this.originalSupplier=_supplier;
+		this.supplier=this.originalSupplier;
 		this.instance=null;
 		this.implementation=_implementation;
 	}
@@ -147,6 +149,16 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	@Override
 	public void setSupplier(final Supplier _supplier) {
 		this.supplier=_supplier;
+	}
+
+	/**
+	 * @see ServiceSupplier#reset() 
+	 * @since 1.3.0
+	 */	
+	@Override
+	public void reset() {
+		this.supplier=this.originalSupplier;
+		this.instance=null;
 	}
 
 	/**

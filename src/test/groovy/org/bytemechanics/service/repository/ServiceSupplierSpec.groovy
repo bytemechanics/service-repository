@@ -69,7 +69,7 @@ class ServiceSupplierSpec extends Specification{
 	
 	@Unroll
 	def "Call ServiceSupplier.from(#name,#adapter,#singleton,#implementation,#args) should create the #expected instance"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$args) should create the $expected  instance")
+		println(">>>>> ServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$args) should create the $expected  instance")
 
 		when:
 			def serviceSupplier=ServiceSupplier.from(name,adapter,singleton,implementation,(Object[])args)
@@ -105,7 +105,7 @@ class ServiceSupplierSpec extends Specification{
 	
 	@Unroll
 	def "Call ServiceSupplier.from(#name,#adapter,#implementation,#args) should create the #expected instance"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$implementation,$args) should create the $expected  instance")
+		println(">>>>> ServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$implementation,$args) should create the $expected  instance")
 
 		when:
 			def serviceSupplier=ServiceSupplier.from(name,adapter,implementation,(Object[])args)
@@ -135,7 +135,7 @@ class ServiceSupplierSpec extends Specification{
 	
 	@Unroll
 	def "Call ServiceSupplier.from(#name,#adapter,#singleton,#implementation,#supplier) should create the #expected instance"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$supplier) should create the $expected  instance")
+		println(">>>>> ServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$supplier) should create the $expected  instance")
 
 		when:
 			def serviceSupplier=ServiceSupplier.from(name,adapter,implementation,singleton,supplier)
@@ -171,7 +171,7 @@ class ServiceSupplierSpec extends Specification{
 	
 	@Unroll
 	def "Call ServiceSupplier.from(#name,#adapter,#singleton,#supplier) should create the #expected instance"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$supplier) should create the $expected  instance")
+		println(">>>>> ServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$supplier) should create the $expected  instance")
 
 		when:
 			def serviceSupplier=ServiceSupplier.from(name,adapter,singleton,supplier)
@@ -207,7 +207,7 @@ class ServiceSupplierSpec extends Specification{
 	
 	@Unroll
 	def "Call ServiceSupplier.from(#name,#adapter,#supplier) should create the #expected instance"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$supplier) should create the $expected  instance")
+		println(">>>>> ServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$supplier) should create the $expected  instance")
 
 		when:
 			def serviceSupplier=ServiceSupplier.from(name,adapter,supplier)
@@ -233,6 +233,64 @@ class ServiceSupplierSpec extends Specification{
 			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| ["3arg-arg1",3,"3arg-arg2"]	| { -> new DummieServiceImpl("3arg-arg1",3,"3arg-arg2")}
 
 			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
+	}
+
+	def "When service supplier dispose is call over a singleton, with supplier provided, the next instance should be distinct"(){
+		println(">>>>> ServiceSupplierSpec >>>> When service supplier dispose is call over a singleton, with supplier provided,  the next instance should be distinct")
+
+		setup:
+			def serviceSupplier=ServiceSupplier.from("DUMMIE_SERVICE_0ARG",DummieService.class,true,{ -> new DummieServiceImpl()})
+			def original=serviceSupplier.get()
+			
+		when:
+			serviceSupplier.dispose()
+
+		then:
+			serviceSupplier.get()!=original
+	}
+	def "When service supplier dispose is call over a singleton, with supplier provided replaced, the next instance should be distinct"(){
+		println(">>>>> ServiceSupplierSpec >>>> When service supplier dispose is call over a singleton, with supplier provided replaced,  the next instance should be distinct")
+
+		setup:
+			def serviceSupplier=ServiceSupplier.from("DUMMIE_SERVICE_0ARG",DummieService.class,true,{ -> new DummieServiceImpl()})
+			def dummieService=new DummieServiceImpl();
+			serviceSupplier.setSupplier({ -> dummieService})
+			def original=serviceSupplier.get()
+			
+		when:
+			serviceSupplier.dispose()
+
+		then:
+			serviceSupplier.get()!=original
+	}
+	def "When service supplier dispose is call over a singleton, with implementation, the next instance should be distinct"(){
+		println(">>>>> ServiceSupplierSpec >>>> When service supplier dispose is call over a singleton, with implementation,  the next instance should be distinct")
+
+		setup:
+			def serviceSupplier=ServiceSupplier.from("DUMMIE_SERVICE_0ARG",DummieService.class,true,DummieServiceImpl.class)
+			def original=serviceSupplier.get()
+			
+		when:
+			serviceSupplier.dispose()
+
+		then:
+			serviceSupplier.get()!=original
+	}
+	def "When service supplier dispose is call over a singleton, with implementation and supplier replaced, the next instance should be distinct"(){
+		println(">>>>> ServiceSupplierSpec >>>> When service supplier dispose is call over a singleton, with implementation and supplier replaced,  the next instance should be distinct")
+
+		setup:
+			def serviceSupplier=ServiceSupplier.from("DUMMIE_SERVICE_0ARG",DummieService.class,true,DummieServiceImpl.class)
+			def dummieService=new DummieServiceImpl();
+			serviceSupplier.setSupplier({ -> dummieService})
+			def original=serviceSupplier.get()
+			
+			
+		when:
+			serviceSupplier.dispose()
+
+		then:
+			serviceSupplier.get()!=original
 	}
 }
 

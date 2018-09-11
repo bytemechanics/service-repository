@@ -67,7 +67,13 @@ public interface ServiceSupplier extends Supplier {
 	 * @param _supplier supplier to provides service instance 
 	 * @since v1.2.0
 	 */
-	public void setSupplier(final Supplier _supplier);	
+	public void setSupplier(final Supplier _supplier);		
+	/**
+	 * Method to reset suplier and instance to it's original status this method does not dispose correctly any contained instance for this purpose exist the dispose method
+	 * @see ServiceSupplier#dispose() 
+	 * @since v1.3.0
+	 */
+	public void reset();
 	/**
 	 * Method to return the current supplier for this service or if the _args it's not null nor empty returns a new supplier with these arguments.
 	 * @param _args arguments to use to create the supplier (optional)
@@ -191,7 +197,7 @@ public interface ServiceSupplier extends Supplier {
 								throw new ServiceDisposeException(getName(),e.getMessage(),e);
 							}
 						}
-						setInstance(null);
+						reset();
 					}			
 				}
 			}
