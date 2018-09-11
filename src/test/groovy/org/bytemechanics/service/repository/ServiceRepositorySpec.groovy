@@ -64,17 +64,21 @@ class ServiceRepositorySpec extends Specification{
 	}
 	
 	@Unroll
-	def "Service repository must return an #exception when can not instance #service instance"(){
-		println(">>>>> ServiceRepositorySpec >>>> Service repository must return an $exception when can not instance $service instance")
+	def "Service repository must return an #exception when can not instance #service instance with #message"(){
+		println(">>>>> ServiceRepositorySpec >>>> Service repository must return an $exception when can not instance $service instance with $message")
 
 		when:
 			def instance=service.get()
 			
 		then:
-			thrown(exception)
+			ServiceInitializationException initError=thrown(exception)
+			message.equals(initError.getMessage())
 			
 		where:
-			service	<< [DummieServiceRepository.DUMMIE_SERVICE_4ARG,DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_4ARG]
+			service													| message
+			DummieServiceRepository.DUMMIE_SERVICE_4ARG				| "Service DUMMIE_SERVICE_4ARG can not be initialized properly: Unable to instantiate service with class class org.bytemechanics.service.repository.mocks.DummieServiceImpl using constructor([4arg-arg1, 4, 4arg-arg2, true])"
+			DummieServiceRepository.SINGLETON_DUMMIE_SERVICE_4ARG	| "Service SINGLETON_DUMMIE_SERVICE_4ARG can not be initialized properly: Unable to instantiate service with class class org.bytemechanics.service.repository.mocks.DummieServiceImpl using constructor([4arg-arg1, 4, 4arg-arg2, true])"
+			
 			exception=ServiceInitializationException.class
 	}
 

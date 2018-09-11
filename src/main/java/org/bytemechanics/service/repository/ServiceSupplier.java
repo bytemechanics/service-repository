@@ -15,17 +15,18 @@
  */
 package org.bytemechanics.service.repository;
 
-import java.io.Closeable;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.exceptions.ServiceDisposeException;
 import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
-import org.bytemechanics.service.repository.internal.ObjectFactory;
+import org.bytemechanics.service.repository.internal.commons.reflection.ObjectFactory;
+import org.bytemechanics.service.repository.internal.commons.string.SimpleFormat;
 
 /**
  * Service supplier interface to store all service metadata information and the current instance in case of singletons
@@ -62,13 +63,26 @@ public interface ServiceSupplier extends Supplier {
 	 */
 	public Supplier getSupplier();
 	/**
+	 * Method to return the current consumer for this service. The consumer will be call once dispose is called
+	 * @return the consumer for this service
+	 * @see Consumer
+	 * @since 1.3.0
+	 */
+	public Consumer getDisposeConsumer();
+	/**
 	 * Method to store a new supplier service instance
 	 * @param _supplier supplier to provides service instance 
 	 * @since v1.2.0
 	 */
-	public void setSupplier(final Supplier _supplier);	
+	public void setSupplier(final Supplier _supplier);		
 	/**
-	 * Method to return the current supplier for this service or if the _args it's not null nor empty returns a new supplier with these arguments.
+	 * Method to reset suplier and instance to it's original status this method does not dispose correctly any contained instance for this purpose exist the dispose method
+	 * @see ServiceSupplier#dispose() 
+	 * @since v1.3.0
+	 */
+	public void reset();
+	/**
+	 * Method to return the new supplier for this service or if the _args it's not null nor empty otherwise returns the current supplier.
 	 * @param _args arguments to use to create the supplier (optional)
 	 * @return the Supplier for this service
 	 * @see Supplier
@@ -107,7 +121,7 @@ public interface ServiceSupplier extends Supplier {
 		try{
 			reply=Optional.ofNullable(get(_args));
 		}catch(Throwable e){
-			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,e,() -> MessageFormat.format("service::supplier::service::{0}::get::fail::{1}",getName(),e.getMessage()));
+			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,e,() -> SimpleFormat.format("service::supplier::service::{}::get::fail::{}",getName(),e.getMessage()));
 		}
 				
 		return reply;
@@ -170,9 +184,10 @@ public interface ServiceSupplier extends Supplier {
 		}
 	}
 	/**
-	 * Synchronized service dispose. if is singleton AND, THE IMPLEMENTATION, implements Closeable then dispose it will call Closeable#close() and removes current instance by calling #setInstance(null), otherwise does nothing
+	 * Synchronized service dispose. if is singleton use the disposeConsumer with the current instance and reset serviceSupplier
 	 * @throws ServiceDisposeException when service can not be disposed
-	 * @see Closeable#close() 
+	 * @see ServiceSupplier#reset() 
+	 * @see ServiceSupplier#getDisposeConsumer() 
 	 */
 	@SuppressWarnings("UseSpecificCatch")
 	public default void dispose(){
@@ -183,23 +198,18 @@ public interface ServiceSupplier extends Supplier {
 				synchronized(this){
 					current=getInstance();
 					if(current!=null){
-						if(Closeable.class.isAssignableFrom(current.getClass())){
-							try {
-								((Closeable)current).close();
-							} catch (Throwable e) {
-								throw new ServiceDisposeException(getName(),e.getMessage(),e);
-							}
-						}
-						setInstance(null);
+						getDisposeConsumer()
+							.accept(current);
 					}			
 				}
 			}
 		}
+		reset();
 	}
 	
 	
 	/**
-	 * Utility method to generate implementation suppplier form the class implementation
+	 * Utility method to generate implementation suppplier from the class implementation
 	 * @param <T> implementation class type
 	 * @param _name service name
 	 * @param _implementation implementation class
@@ -212,11 +222,58 @@ public interface ServiceSupplier extends Supplier {
 							.with(_attributes)
 							.supplier()
 							.get()
-							.orElseThrow(() -> new ServiceInitializationException(_name,MessageFormat
-																	.format("Unable to instantiate service with class {0} using constructor({1})", 
+							.orElseThrow(() -> new ServiceInitializationException(_name,SimpleFormat
+																	.format("Unable to instantiate service with class {} using constructor({})", 
 																		_implementation,
 																		Optional.ofNullable(_attributes)
 																				.map(Arrays::asList)
 																				.orElse(Collections.emptyList()))));
 	}
+	/**
+	 * Utility method to generate consumer implementation if no consumer provided:
+	 * if implementation implements closeable call close otherwise create a consumer that does nothing
+	 * @param <T> implementation class type
+	 * @param _name service name
+	 * @return Consumer instance to close of the service implementation
+	 * @see Consumer
+	 * @see AutoCloseable
+	 * @since 1.3.0
+	 */
+	public static <T> Consumer<T> generateConsumer(final String _name){
+		return (instance -> {
+								if((instance!=null)&&(AutoCloseable.class.isAssignableFrom(instance.getClass()))){
+									try {
+										((AutoCloseable)instance).close();
+									} catch (Exception e) {
+										throw new ServiceDisposeException(_name,e.getMessage(),e);
+									}
+								}
+							});
+	}
+	
+	
+	/**
+	 * Default service supplier builder
+	 * @param <TYPE> adapter type
+	 * @see DefaultServiceSupplier.DefaultServiceSupplierBuilder
+	 */
+	public static class ServiceSupplierBuilder<TYPE> extends DefaultServiceSupplier.DefaultServiceSupplierBuilder<TYPE>{
+
+		public ServiceSupplierBuilder(Class<TYPE> _adapter) {
+			super(_adapter);
+		}
+	}	
+	
+	/**
+	 * Instantiate builder for DefaultServiceSupplier
+	 * @param <T> type of the default service supplier
+	 * @param _adapter adapter class
+	 * @return a builder for DefaultServiceSupplier
+	 * @see DefaultServiceSupplier.DefaultServiceSupplierBuilder
+	 * @since 1.3.0
+	 */
+	@java.lang.SuppressWarnings("all")
+	public static <T> ServiceSupplierBuilder<T> builder(final Class<T> _adapter) {
+		return new ServiceSupplierBuilder<>(_adapter);
+	}		
 }

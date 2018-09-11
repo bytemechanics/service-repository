@@ -19,6 +19,7 @@ package org.bytemechanics.service.repository.beans
 import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.exceptions.UnableToSetInstanceException;
+import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
 import org.bytemechanics.service.repository.mocks.DummieService;
 import org.bytemechanics.service.repository.mocks.DummieServiceImpl;
 import spock.lang.Specification;
@@ -29,10 +30,10 @@ import java.util.logging.*
 /**
  * @author afarre
  */
-class DefaultServiceSupplierSpec extends Specification{
+class DefaultServiceSupplierBuildSpec extends Specification{
 	
 	def setupSpec(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> setupSpec")
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> setupSpec")
 		final InputStream inputStream = DefaultServiceSupplierSpec.class.getResourceAsStream("/logging.properties");
 		try{
 			LogManager.getLogManager().readConfiguration(inputStream);
@@ -45,10 +46,23 @@ class DefaultServiceSupplierSpec extends Specification{
 		}
 	}
 	
+	def "Try to instantiate DefaultServiceSupplier without implementation and supplier should raise ServiceInitializationException"(){
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> Try to instantiate DefaultServiceSupplier without implementation and supplier should raise ServiceInitializationException")
+
+		when:
+			def serviceSupplier=DefaultServiceSupplier.builder(DummieService.class)
+															.name("named")
+															.singleton(false)
+															.args(1,2,3)
+														.build()
+		then:
+			def e=thrown(ServiceInitializationException)
+			e.getServiceName()=="named"
+	}
 	
 	@Unroll
-	def "Call DefaultServiceSupplier(#name,#adapter,#singleton,#implementation,#args) should create the #expected instance"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$args) should create the $expected  instance")
+	def "Instantiate DefaultServiceSupplier with name:#name,adapter:#adapter,singleton:#singleton,implementation:#implementation,args:#args should create the #expected instance"(){
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> Instantiate DefaultServiceSupplier with name:$name,adapter:$adapter,singleton:$singleton,implementation:$implementation,args:$args should create the $expected instance")
 
 		when:
 			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
@@ -87,9 +101,52 @@ class DefaultServiceSupplierSpec extends Specification{
 			expected=[(args.size()>0)? args[0] : "",(args.size()>1)? args[1] : 0,(args.size()>2)? args[2] : ""]			
 	}
 
+	
+	@Unroll
+	def "Instantiate DefaultServiceSupplier with name:#name,adapter:#adapter,singleton:#singleton,implementation:#implementation,args:#args,supplier:#supplier should create the zero args instance"(){
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> Instantiate DefaultServiceSupplier with name:$name,adapter:$adapter,singleton:$singleton,implementation:$implementation,args:$args,supplier:$supplier should create the zero args instance")
+
+		when:
+			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
+															.name(name)
+															.singleton(singleton)
+															.implementation(implementation)
+															.args((Object[])args)
+															.supplier(supplier)
+														.build()
+
+		then:
+			serviceSupplier!=null
+			serviceSupplier.getInstance()==null
+			serviceSupplier.getName()==name
+			serviceSupplier.getAdapter()==adapter
+			serviceSupplier.getSupplier()!=null
+			serviceSupplier.getSupplier().get() instanceof DummieServiceImpl
+			serviceSupplier.getSupplier().get().getArg1()==""
+			serviceSupplier.getSupplier().get().getArg2()==0
+			serviceSupplier.getSupplier().get().getArg3()==""
+			
+		where:
+			name										| adapter				| singleton	| implementation			| args
+			"DUMMIE_SERVICE_0ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_1ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_3ARG"						| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"DUMMIE_SERVICE_SUPPLIER_0ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| []
+			"DUMMIE_SERVICE_SUPPLIER_1ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"DUMMIE_SERVICE_SUPPLIER_3ARG"				| DummieService.class	| false		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"SINGLETON_DUMMIE_SERVICE_0ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| []
+			"SINGLETON_DUMMIE_SERVICE_1ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"SINGLETON_DUMMIE_SERVICE_3ARG"				| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_0ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| []
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_1ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["1arg-arg1"]
+			"SINGLETON_DUMMIE_SERVICE_SUPPLIER_3ARG"	| DummieService.class	| true		| DummieServiceImpl.class	| ["3arg-arg1",3,"3arg-arg2"]
+
+			supplier={-> new DummieServiceImpl()}			
+	}
+
 	@Unroll
 	def "Given #name ServiceSupplier instance of #implementation(#constructorArgs) for #adapter as singleton[#singleton] if call get(#getterArgs) we can expect a instance with #expected"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Given $name ServiceSupplier instance of $implementation($constructorArgs) for $adapter as singleton[$singleton] if call get($getterArgs) we can expect a instance with $expected")
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> Given $name ServiceSupplier instance of $implementation($constructorArgs) for $adapter as singleton[$singleton] if call get($getterArgs) we can expect a instance with $expected")
 
 		setup:
 			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
@@ -132,7 +189,7 @@ class DefaultServiceSupplierSpec extends Specification{
 
 	@Unroll
 	def "Replace #name ServiceSupplier instance of #implementation(#args) as singleton[#singleton] with another instance that doesnt implement #adapter should raise an UnableToSetInstanceException"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Replace $name instance of $implementation($args) as singleton[$singleton] with another instance that doesnt implement $adapter should raise an UnableToSetInstanceException")
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> Replace $name instance of $implementation($args) as singleton[$singleton] with another instance that doesnt implement $adapter should raise an UnableToSetInstanceException")
 
 		when:
 			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
@@ -165,7 +222,7 @@ class DefaultServiceSupplierSpec extends Specification{
 
 	@Unroll
 	def "Replace ServiceSupplier #name of #implementation(#args) for #adapter as singleton[#singleton] with another supplier should keep the new one"(){
-		println(">>>>> DefaultServiceSupplierSpec >>>> Replace supplier $name of $implementation for $adapter when singleton[$singleton] using $args with another supplier should keep the new one")
+		println(">>>>> DefaultServiceSupplierBuildSpec >>>> Replace supplier $name of $implementation for $adapter when singleton[$singleton] using $args with another supplier should keep the new one")
 
 		when:
 			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
