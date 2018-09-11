@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.bytemechanics.service.repository.ServiceRepository;
 import org.bytemechanics.service.repository.ServiceSupplier;
-import org.bytemechanics.service.repository.beans.DefaultServiceSupplier;
 
 /**
  *
@@ -45,16 +44,32 @@ public enum DummieServiceRepositoryNoErrors implements ServiceRepository {
 		
 	
 	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
-		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementation,_args);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.implementation(_implementation)
+												.args(_args)
+											.build();
 	}
 	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final Supplier<? extends T> _implementationSupplier){
-		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementationSupplier);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.supplier(_implementationSupplier)
+											.build();
 	}
 	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final boolean _singleton,final Class<? extends T> _implementation,final Object... _args){
-		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementation,_args);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.singleton(_singleton)
+												.implementation(_implementation)
+												.args(_args)
+											.build();
 	}
 	<T> DummieServiceRepositoryNoErrors(final Class<T> _adapter,final boolean _singleton,final Supplier<? extends T> _implementationSupplier){
-		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementationSupplier);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.singleton(_singleton)
+												.supplier(_implementationSupplier)
+											.build();
 	}
 		
 	@Override

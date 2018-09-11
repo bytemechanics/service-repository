@@ -15,6 +15,7 @@
  */
 package org.bytemechanics.service.repository.beans;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.bytemechanics.service.repository.ServiceSupplier;
 import org.bytemechanics.service.repository.exceptions.ServiceInitializationException;
@@ -32,6 +33,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	private final String name;
 	private final Supplier originalSupplier;
 	private Supplier supplier;
+	private final Consumer disposeConsumer;
 	private final Class adapter;
 	private final Class implementation;
 	private final boolean singleton;
@@ -42,66 +44,30 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	 * Constructor of service supplier
 	 * @param <T> adapter class type
 	 * @param _name Service name
-	 * @param _adapter interface class that _iimplementation must implement
-	 * @param _implementation service implementation class
-	 * @param _args	Service arguments
-	 */
-	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
-		this(_name,_adapter,_implementation,false,ServiceSupplier.generateSupplier(_name,_implementation,_args));
-	}
-	/**
-	 * Constructor of service supplier
-	 * @param <T> adapter class type
-	 * @param _name Service name
-	 * @param _adapter interface class that _iimplementation must implement
-	 * @param _supplier adapter class implementation supplier
-	 */
-	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Supplier<? extends T> _supplier){
-		this(_name,_adapter,null,false,_supplier);
-	}
-	/**
-	 * Constructor of service supplier
-	 * @param <T> adapter class type
-	 * @param _name Service name
-	 * @param _adapter interface class that _iimplementation must implement
-	 * @param _isSingleton  singleton flag
-	 * @param _implementation service implementation class
-	 * @param _args	Service arguments
-	 */
-	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Class<? extends T> _implementation,final Object... _args){
-		this(_name,_adapter,_implementation,_isSingleton,ServiceSupplier.generateSupplier(_name,_implementation,_args));
-	}
-	/**
-	 * Constructor of service supplier
-	 * @param <T> adapter class type
-	 * @param _name Service name
-	 * @param _adapter interface class that _iimplementation must implement
-	 * @param _isSingleton  singleton flag
-	 * @param _supplier adapter class implementation supplier
-	 */
-	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Supplier<? extends T> _supplier){
-		this(_name,_adapter,null,_isSingleton,_supplier);
-	}
-	/**
-	 * Constructor of service supplier
-	 * @param <T> adapter class type
-	 * @param _name Service name
 	 * @param _adapter interface class that _implementation must implement
-	 * @param _implementation implementation of the _adapter (optional)
 	 * @param _isSingleton  singleton flag
 	 * @param _supplier adapter class implementation supplier
+	 * @param _disposeConsumer dispose consumer
+	 * @param _implementation implementation of the _adapter (optional)
+	 * @param _args arguments to use with the implementation if necessary
 	 * @since 1.2.0
 	 */
-	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final Class<? extends T> _implementation,final boolean _isSingleton,final Supplier<? extends T> _supplier){
+	public <T> DefaultServiceSupplier(final String _name,final Class<T> _adapter,final boolean _isSingleton,final Supplier<? extends T> _supplier,final Consumer<? extends T> _disposeConsumer,final Class<? extends T> _implementation,final Object... _args){
 		this.name=_name;
 		this.adapter=_adapter;
 		this.singleton=_isSingleton;
-		this.originalSupplier=_supplier;
-		this.supplier=this.originalSupplier;
-		this.instance=null;
+		this.supplier=_supplier;
 		this.implementation=_implementation;
+		if(this.supplier==null){
+			if(_implementation==null){
+				throw new ServiceInitializationException(_name,"Unable to create service supplier without supplier or implementation");
+			}
+			this.supplier=ServiceSupplier.generateSupplier(this.name,this.implementation,_args);
+		}
+		this.originalSupplier=this.supplier;
+		this.disposeConsumer=(_disposeConsumer!=null)? _disposeConsumer : ServiceSupplier.generateConsumer(this.name);
+		this.instance=null;
 	}
-
 
 	/**
 	 * @return name
@@ -151,6 +117,14 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	public void setSupplier(final Supplier _supplier) {
 		this.supplier=_supplier;
 	}
+	/**
+	 * @see ServiceSupplier#getDisposeConsumer() 
+	 * @since 1.3.0
+	 */
+	@Override
+	public Consumer getDisposeConsumer(){
+		return this.disposeConsumer;
+	}
 
 	/**
 	 * @see ServiceSupplier#reset() 
@@ -191,10 +165,11 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 	public static class DefaultServiceSupplierBuilder<TYPE>{
 		
 		private String name;
-		private Supplier supplier;
+		private Supplier<? extends TYPE> supplier;
 		private final Class<TYPE> adapter;
 		private Class<? extends TYPE> implementation;
 		private boolean singleton;
+		private Consumer<? extends TYPE> disposeConsumer;
 		private Object[] args;
 	
 		public DefaultServiceSupplierBuilder(final Class<TYPE> _adapter){
@@ -204,6 +179,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 			this.implementation=null;
 			this.singleton=false;
 			this.args=new Object[0];
+			this.disposeConsumer=null;
 		}
 		
 		/**
@@ -220,10 +196,20 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 		 * @param _supplier value
 		 * @return DefaultServiceSupplierBuilder
 		 */
-		public DefaultServiceSupplierBuilder<TYPE> supplier(final Supplier _supplier) {
+		public DefaultServiceSupplierBuilder<TYPE> supplier(final Supplier<? extends TYPE> _supplier) {
 			this.supplier = _supplier;
 			return this;
 		}
+		/**
+		 * Sets the disposeConsumer to the builder
+		 * @param _disposeConsumer value
+		 * @return DefaultServiceSupplierBuilder
+		 */
+		public DefaultServiceSupplierBuilder<TYPE> disposeConsumer(final Consumer<? extends TYPE> _disposeConsumer) {
+			this.disposeConsumer = _disposeConsumer;
+			return this;
+		}
+		
 		/**
 		 * Sets the arguments to the builder
 		 * @param _arguments arguments to use to create a supplier from implementation
@@ -257,12 +243,7 @@ public class DefaultServiceSupplier implements ServiceSupplier{
 		 * @return DefaultServiceSupplier
 		 */
 		public DefaultServiceSupplier build() {
-
-			if(this.supplier!=null){
-				return new DefaultServiceSupplier(name, adapter, implementation, singleton, supplier);
-			}else if(this.implementation!=null){
-				return new DefaultServiceSupplier(name, adapter, singleton, implementation, args);
-			}else throw new ServiceInitializationException(name,"Unable to create service supplier without supplier or implementation");
+			return new DefaultServiceSupplier(name, adapter, singleton, supplier,disposeConsumer,implementation,args);
 		}
 	}
 

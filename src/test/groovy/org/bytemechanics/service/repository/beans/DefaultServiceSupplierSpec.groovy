@@ -51,7 +51,12 @@ class DefaultServiceSupplierSpec extends Specification{
 		println(">>>>> DefaultServiceSupplierSpec >>>> Call DefaultServiceSupplier($name,$adapter,$singleton,$implementation,$args) should create the $expected  instance")
 
 		when:
-			def serviceSupplier=new DefaultServiceSupplier(name,adapter,singleton,implementation,(Object[])args)
+			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
+															.name(name)
+															.singleton(singleton)
+															.implementation(implementation)
+															.args((Object[])args)
+														.build()
 
 		then:
 			serviceSupplier!=null
@@ -87,7 +92,12 @@ class DefaultServiceSupplierSpec extends Specification{
 		println(">>>>> DefaultServiceSupplierSpec >>>> Given $name ServiceSupplier instance of $implementation($constructorArgs) for $adapter as singleton[$singleton] if call get($getterArgs) we can expect a instance with $expected")
 
 		setup:
-			def ServiceSupplier serviceSupplier=new DefaultServiceSupplier(name,adapter,singleton,implementation,(Object[])constructorArgs)
+			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
+															.name(name)
+															.singleton(singleton)
+															.implementation(implementation)
+															.args((Object[])constructorArgs)
+														.build()
 			def instance
 		
 		when:
@@ -125,7 +135,12 @@ class DefaultServiceSupplierSpec extends Specification{
 		println(">>>>> DefaultServiceSupplierSpec >>>> Replace $name instance of $implementation($args) as singleton[$singleton] with another instance that doesnt implement $adapter should raise an UnableToSetInstanceException")
 
 		when:
-			def serviceSupplier=new DefaultServiceSupplier(name,adapter,singleton,implementation,(Object[])args)
+			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
+															.name(name)
+															.singleton(singleton)
+															.implementation(implementation)
+															.args((Object[])args)
+														.build()
 			serviceSupplier.setInstance(new Integer(1))
 
 		then:
@@ -153,7 +168,12 @@ class DefaultServiceSupplierSpec extends Specification{
 		println(">>>>> DefaultServiceSupplierSpec >>>> Replace supplier $name of $implementation for $adapter when singleton[$singleton] using $args with another supplier should keep the new one")
 
 		when:
-			def serviceSupplier=new DefaultServiceSupplier(name,adapter,singleton,implementation,(Object[])args)
+			def serviceSupplier=DefaultServiceSupplier.builder(adapter)
+															.name(name)
+															.singleton(singleton)
+															.implementation(implementation)
+															.args((Object[])args)
+														.build()
 			def dummieServiceImpl=new DummieServiceImpl();
 			serviceSupplier.setSupplier({ -> dummieServiceImpl})
 
