@@ -1,7 +1,7 @@
 # Service Repository
 [![Latest version](https://maven-badges.herokuapp.com/maven-central/org.bytemechanics/service-repository/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.bytemechanics/service-repository/badge.svg)
-[![Quality Gate](https://sonarcloud.io/api/badges/gate?key=org.bytemechanics%3Aservice-repository)](https://sonarcloud.io/dashboard/index/org.bytemechanics%3Aservice-repository)
-[![Coverage](https://sonarcloud.io/api/badges/measure?key=org.bytemechanics%3Aservice-repository&metric=coverage)](https://sonarcloud.io/dashboard/index/org.bytemechanics%3Aservice-repository)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=org.bytemechanics%3Aservice-repository)](https://sonarcloud.io/dashboard/index/org.bytemechanics%3Aservice-repository)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.bytemechanics%3Aservice-repository&metric=coverage)](https://sonarcloud.io/dashboard/index/org.bytemechanics%3Aservice-repository)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Service Repository it's a library to simplify the task to define and unify the distinct services existing inside any application.
@@ -43,16 +43,32 @@ public enum MyServiceRepository implements ServiceRepository{
 	;	
 	private final ServiceSupplier serviceSupplier;	
 	<T> MyServiceRepository(final Class<T> _adapter,final Class<? extends T> _implementation,final Object... _args){
-		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementation,_args);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.implementation(_implementation)
+												.args(_args)
+											.build();
 	}
 	<T> MyServiceRepository(final Class<T> _adapter,final Supplier<? extends T> _implementationSupplier){
-		this.serviceSupplier=new DefaultServiceSupplier(name(), _adapter, _implementationSupplier);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.supplier(_implementationSupplier)
+											.build();
 	}
 	<T> MyServiceRepository(final Class<T> _adapter,final boolean _singleton,final Class<? extends T> _implementation,final Object... _args){
-		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementation,_args);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.singleton(_singleton)
+												.implementation(_implementation)
+												.args(_args)
+											.build();
 	}
 	<T> MyServiceRepository(final Class<T> _adapter,final boolean _singleton,final Supplier<? extends T> _implementationSupplier){
-		this.serviceSupplier=new DefaultServiceSupplier(name(),_adapter,_singleton,_implementationSupplier);
+		this.serviceSupplier=ServiceSupplier.builder(_adapter)
+												.name(name())
+												.singleton(_singleton)
+												.supplier(_implementationSupplier)
+											.build();
 	}
 	@Override
 	public ServiceSupplier getServiceSupplier() {
